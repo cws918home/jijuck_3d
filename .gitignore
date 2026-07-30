@@ -1,0 +1,7 @@
+*.OSV
+*.osv
+*.LRF
+*.lrf
+360/
+__pycache__/
+.DS_Store

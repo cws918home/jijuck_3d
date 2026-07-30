@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Cadastral Map</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap');
+
+        body { 
+            margin: 0; padding: 0; overflow: hidden; 
+            font-family: 'Outfit', sans-serif; 
+            background: linear-gradient(135deg, #1e1e2f 0%, #2a2a40 100%);
+            color: #ffffff;
+            cursor: default; 
+        }
+        #canvas-container { width: 100vw; height: 100vh; display: block; position: absolute; top: 0; left: 0; z-index: 1; }
+        #instructions {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #f0f0f0;
+            padding: 18px 24px;
+            border-radius: 16px;
+            font-size: 15px;
+            pointer-events: none;
+            line-height: 1.6;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            z-index: 100;
+        }
+        .highlight-text { color: #64ffda; font-weight: 600; text-shadow: 0 0 8px rgba(100, 255, 218, 0.4); }
+        #logo-container {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            z-index: 100;
+            pointer-events: none;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        #logo-container img {
+            max-width: 160px;
+            max-height: 160px;
+            object-fit: contain;
+            filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.4));
+        }
+        .building-label {
+            background: rgba(10, 10, 15, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: #ffffff;
+            padding: 5px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            text-align: center;
+            pointer-events: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            white-space: pre-wrap;
+            transition: opacity 0.25s ease;
+        }
+        .building-label .seq {
+            font-weight: 600;
+            font-size: 12px;
+            color: #64ffda;
+            margin-bottom: 2px;
+            text-shadow: 0 0 6px rgba(100, 255, 218, 0.5);
+        }
+        .building-label .area {
+            font-size: 11px;
+            color: #fff;
+            white-space: nowrap;
+        }
+
+        /* Camera Controls Toolbar */
+        #camera-controls {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            z-index: 100;
+            display: flex;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 10px 14px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .cam-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(4px);
+        }
+        .cam-btn:hover {
+            background: rgba(100, 255, 218, 0.2);
+            border-color: #64ffda;
+            color: #64ffda;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(100, 255, 218, 0.3);
+        }
+        .cam-btn.active {
+            background: #64ffda;
+            color: #0a0a0f;
+            border-color: #64ffda;
+            box-shadow: 0 0 15px rgba(100, 255, 218, 0.6);
+        }
+
+        /* Main Navigation Tabs */
+        #main-nav {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: flex;
+            gap: 8px;
+            background: rgba(10, 10, 15, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 6px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        .nav-tab {
+            background: transparent;
+            border: none;
+            color: #aaaaaa;
+            padding: 10px 22px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .nav-tab:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .nav-tab.active {
+            background: linear-gradient(135deg, #64ffda 0%, #00b4d8 100%);
+            color: #0a0a0f;
+            box-shadow: 0 4px 20px rgba(100, 255, 218, 0.4);
+            font-weight: 700;
+        }
+
+        /* VR Spot Selector Bar */
+        #vr-spot-bar {
+            position: absolute;
+            top: 85px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: none;
+            gap: 10px;
+            background: rgba(10, 10, 15, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 8px 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(100, 255, 218, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+    </style>
+    <!-- Import Three.js -->
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.150.1/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.150.1/examples/jsm/"
+        }
+      }
+    </script>
+</head>
+<body>
+    <div id="logo-container">
+        <!-- Logo will be injected here if available -->
+        {{LOGO_HTML}}
+    </div>
+    
+    <div id="canvas-container"></div>
+    
+    <!-- Main Top Navigation Tabs -->
+    <div id="main-nav">
+        <button class="nav-tab active" id="tab-map">🗺️ 3D 지적도 뷰</button>
+        <button class="nav-tab" id="tab-vr">🚁 360° 항공 VR 뷰</button>
+    </div>
+
+    <div id="camera-controls">
+        <button class="cam-btn" id="btn-overview">🌐 전체보기</button>
+        <button class="cam-btn" id="btn-front">📐 정면 뷰</button>
+        <button class="cam-btn" id="btn-drone">🚁 드론 뷰</button>
+        <button class="cam-btn" id="btn-rotate">🔄 360° 회전</button>
+    </div>
+
+    <div id="vr-spot-bar"></div>
+
+    <div id="instructions">
+        • 토지 구획 위에 <span class="highlight-text">마우스를 올리면</span> 영역이 표시됩니다.<br>
+        • 구획을 <span class="highlight-text">클릭 후 위아래로 드래그</span>하여 높이를 조절하세요.
+    </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { Line2 } from 'three/addons/lines/Line2.js';
+        import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
+        import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
+        import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+        // Data from Python
+        const polygons = {{POLYGONS}};
+        const cadastralData = {{CADASTRAL_DATA}};
+        let sequence = cadastralData.sequence || [];
+        let areas = cadastralData.areas || {};
+        
+        const imgWidth = {{IMG_WIDTH}};
+        const imgHeight = {{IMG_HEIGHT}};
+        const defaultExtrudeHeight = 0.1;
+        
+        // Scene setup
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+
+        // Camera
+        const aspect = window.innerWidth / window.innerHeight;
+        const camera = new THREE.PerspectiveCamera(60, aspect, 1, 10000);
+        camera.position.set(0, -imgHeight * 0.8, imgHeight * 0.8);
+
+        // Renderer
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        // CSS2D Renderer for labels
+        const labelRenderer = new CSS2DRenderer();
+        labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        labelRenderer.domElement.style.position = 'absolute';
+        labelRenderer.domElement.style.top = '0px';
+        labelRenderer.domElement.style.left = '0px';
+        labelRenderer.domElement.style.pointerEvents = 'none';
+        labelRenderer.domElement.style.zIndex = '10';
+        container.appendChild(labelRenderer.domElement);
+
+        // Controls
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.target.set(0, 0, 0);
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+        scene.add(ambientLight);
+        
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        dirLight.position.set(imgWidth, imgHeight, 1000);
+        scene.add(dirLight);
+
+        // Texture loader
+        const textureLoader = new THREE.TextureLoader();
+        
+        const meshes = []; 
+        let baseTexture = null;
+        const lineMaterials = [];
+
+        let hoveredMesh = null;
+        let isDragging = false;
+        let draggedMesh = null;
+        let groundPlane = null;
+        let startY = 0;
+        let startHeight = 0;
+        let isRightClick = false;
+        let pointerDownPos = { x: 0, y: 0 };
+        let pointerDownTime = 0;
+
+        // Load Base Image for ground plane
+        textureLoader.load("{{BASE_IMAGE_B64}}", function(texture) {
+            texture.colorSpace = THREE.SRGBColorSpace;
+            baseTexture = texture; 
+            const planeGeometry = new THREE.PlaneGeometry(imgWidth, imgHeight);
+            const planeMaterial = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+            groundPlane = new THREE.Mesh(planeGeometry, planeMaterial);
+            groundPlane.position.set(0, 0, -2);
+            scene.add(groundPlane);
+            loadSideTextureAndBuild();
+        });
+
+        function loadSideTextureAndBuild() {
+            textureLoader.load("{{SIDE_TEXTURE_B64}}", function(texture) {
+                texture.colorSpace = THREE.SRGBColorSpace;
+                texture.wrapS = THREE.RepeatWrapping;
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.repeat.set(0.01, 0.02);
+                
+                polygons.forEach((poly, index) => {
+                    if (poly.length === 0) return;
+                    const shape = new THREE.Shape();
+                    let firstX = poly[0][0] - imgWidth / 2;
+                    let firstY = -poly[0][1] + imgHeight / 2;
+                    shape.moveTo(firstX, firstY);
+                    const positions = [];
+                    positions.push(firstX, firstY, 0);
+                    for(let i=1; i<poly.length; i++) {
+                        let px = poly[i][0] - imgWidth / 2;
+                        let py = -poly[i][1] + imgHeight / 2;
+                        shape.lineTo(px, py);
+                        positions.push(px, py, 0);
+                    }
+                    positions.push(firstX, firstY, 0);
+                    
+                    const extrudeSettings = { steps: 1, depth: defaultExtrudeHeight, bevelEnabled: false };
+                    const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+                    applyTopFaceUVs(geometry);
+                    
+                    const topMat = new THREE.MeshLambertMaterial({ map: baseTexture, color: 0xffffff });
+                    const sideMat = new THREE.MeshLambertMaterial({ map: texture, color: 0xdddddd });
+                    const mesh = new THREE.Mesh(geometry, [topMat, sideMat]);
+                    
+                    const seqIndex = sequence.indexOf(index);
+                    let labelObj = null;
+                    if (seqIndex !== -1) {
+                        const div = document.createElement('div');
+                        div.className = 'building-label';
+                        div.innerHTML = `<div class="seq">No. ${seqIndex + 1}</div><div class="area">${(areas[index.toString()] || '').replace(/\\n/g, '<br>')}</div>`;
+                        labelObj = new CSS2DObject(div);
+                        let cx = 0, cy = 0;
+                        for(let k=0; k<poly.length; k++) { cx += poly[k][0] - imgWidth / 2; cy += -poly[k][1] + imgHeight / 2; }
+                        labelObj.position.set(cx/poly.length, cy/poly.length, defaultExtrudeHeight + 10);
+                        mesh.add(labelObj);
+                    }
+                    
+                    const lineGeo = new LineGeometry();
+                    lineGeo.setPositions(positions);
+                    const lineMat = new LineMaterial({ color: 0xffffff, linewidth: 8, resolution: new THREE.Vector2(window.innerWidth, window.innerHeight) });
+                    lineMaterials.push(lineMat);
+                    const outline = new Line2(lineGeo, lineMat);
+                    outline.position.z = defaultExtrudeHeight + 0.1;
+                    mesh.add(outline);
+
+                    mesh.userData = { index, shape, height: defaultExtrudeHeight, outline, topMaterial: topMat, label: labelObj };
+                    scene.add(mesh);
+                    meshes.push(mesh);
+                });
+            });
+        }
+
+        function applyTopFaceUVs(geometry) {
+            const posAttr = geometry.attributes.position;
+            const uvAttr = geometry.attributes.uv;
+            if (geometry.groups.length > 0) {
+                const group0 = geometry.groups[0];
+                for (let i = group0.start; i < group0.start + group0.count; i++) {
+                    uvAttr.setXY(i, (posAttr.getX(i) / imgWidth) + 0.5, (posAttr.getY(i) / imgHeight) + 0.5);
+                }
+                uvAttr.needsUpdate = true;
+            }
+        }
+
+        function updateMeshHeight(mesh, newHeight) {
+            const MAX_HEIGHT = 200;
+            newHeight = Math.max(0.1, Math.min(MAX_HEIGHT, newHeight)); 
+            mesh.userData.height = newHeight;
+            const newGeometry = new THREE.ExtrudeGeometry(mesh.userData.shape, { steps: 1, depth: newHeight, bevelEnabled: false });
+            applyTopFaceUVs(newGeometry);
+            mesh.geometry.dispose();
+            mesh.geometry = newGeometry;
+            mesh.userData.outline.position.z = newHeight + 0.1;
+            if (mesh.userData.label) mesh.userData.label.position.z = newHeight + 10;
+        }
+
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        window.addEventListener('pointerdown', (event) => {
+            isAnimatingCam = false;
+            if (isVrMode) {
+                controls.enabled = true;
+                return;
+            }
+            if (event.button === 2) { isRightClick = true; return; }
+            isRightClick = false;
+            
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+            const visibleMeshes = meshes.filter(m => m.visible);
+            const intersects = raycaster.intersectObjects(visibleMeshes, false);
+            
+            if (intersects.length > 0) {
+                draggedMesh = intersects[0].object;
+                isDragging = true;
+                startY = event.clientY;
+                startHeight = draggedMesh.userData.height;
+                controls.enabled = false;
+                document.body.style.cursor = 'ns-resize';
+            }
+        });
+
+        window.addEventListener('pointermove', (event) => {
+            if (isVrMode) return;
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            if (isDragging && draggedMesh) {
+                updateMeshHeight(draggedMesh, startHeight - (event.clientY - startY));
+            } else {
+                raycaster.setFromCamera(mouse, camera);
+                const visibleMeshes = meshes.filter(m => m.visible);
+                const intersects = raycaster.intersectObjects(visibleMeshes, false);
+                if (intersects.length > 0) {
+                    if (hoveredMesh !== intersects[0].object) {
+                        if (hoveredMesh) hoveredMesh.userData.topMaterial.emissive.setHex(0x000000);
+                        hoveredMesh = intersects[0].object;
+                        hoveredMesh.userData.topMaterial.emissive.setHex(0x444444);
+                        document.body.style.cursor = 'pointer';
+                    }
+                } else if (hoveredMesh) {
+                    hoveredMesh.userData.topMaterial.emissive.setHex(0x000000);
+                    hoveredMesh = null;
+                    document.body.style.cursor = 'default';
+                }
+            }
+        });
+
+        window.addEventListener('pointerup', () => {
+            isDragging = false;
+            draggedMesh = null;
+            isRightClick = false;
+            controls.enabled = true;
+            if (isVrMode) {
+                document.body.style.cursor = 'default';
+                return;
+            }
+            document.body.style.cursor = hoveredMesh ? 'pointer' : 'default';
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            // Update line resolutions
+            lineMaterials.forEach(mat => {
+                mat.resolution.set(window.innerWidth, window.innerHeight);
+            });
+        });
+
+        const labelRaycaster = new THREE.Raycaster();
+        const labelWorldPos = new THREE.Vector3();
+        const rayDir = new THREE.Vector3();
+
+        function checkLabelVisibility() {
+            const cameraPos = camera.position;
+
+            meshes.forEach(mesh => {
+                const label = mesh.userData.label;
+                if (!label) return;
+
+                label.getWorldPosition(labelWorldPos);
+                rayDir.subVectors(labelWorldPos, cameraPos).normalize();
+                const distToLabel = cameraPos.distanceTo(labelWorldPos);
+
+                labelRaycaster.set(cameraPos, rayDir);
+                
+                const otherMeshes = meshes.filter(m => m !== mesh);
+                const intersects = labelRaycaster.intersectObjects(otherMeshes, false);
+
+                if (intersects.length > 0 && intersects[0].distance < distToLabel - 5) {
+                    label.element.style.opacity = '0';
+                    label.element.style.pointerEvents = 'none';
+                } else {
+                    label.element.style.opacity = '1';
+                }
+            });
+        }
+
+        let isAnimatingCam = false;
+        const targetCamPos = new THREE.Vector3();
+        const targetControlPos = new THREE.Vector3(0, 0, 0);
+
+        // 360 VR Drone Video Panorama (Official Three.js Standard Implementation)
+        const droneSpots = {{DRONE_SPOTS}};
+        let isVrMode = false;
+        let skySphere = null;
+        let currentVideoElem = null;
+        let currentVideoTexture = null;
+
+        const sphereGeo = new THREE.SphereGeometry(3000, 60, 40);
+        sphereGeo.scale(-1, 1, 1); // Invert geometry on X axis for interior panorama viewing
+        const skyMat = new THREE.MeshBasicMaterial({ color: 0x111122 });
+        skySphere = new THREE.Mesh(sphereGeo, skyMat);
+        skySphere.position.set(0, 0, 0);
+        skySphere.visible = false;
+        scene.add(skySphere);
+
+        let currentSpotType = 'video';
+
+        function applySavedOrInitialView() {
+            controls.minPolarAngle = 0.0001;
+            controls.maxPolarAngle = Math.PI - 0.0001; // 100% full 360 degree unrestricted polar angle
+            
+            let savedViewRaw = null;
+            try {
+                savedViewRaw = localStorage.getItem('saved_vr_viewpoint');
+            } catch(e) {}
+            if (!savedViewRaw) {
+                try {
+                    savedViewRaw = window.parent.localStorage.getItem('saved_vr_viewpoint');
+                } catch(e) {}
+            }
+
+            if (savedViewRaw) {
+                try {
+                    const savedView = JSON.parse(savedViewRaw);
+                    camera.position.set(0, 0, 0);
+                    if (savedView.dirX !== undefined) {
+                        controls.target.set(savedView.dirX * 1000, savedView.dirY * 1000, savedView.dirZ * 1000);
+                    } else if (savedView.tx !== undefined) {
+                        controls.target.set(savedView.tx, savedView.ty, savedView.tz);
+                    }
+                    if (savedView.fov) {
+                        camera.fov = savedView.fov;
+                        camera.updateProjectionMatrix();
+                    }
+                    controls.update();
+                    return;
+                } catch(e) {}
+            }
+            
+            camera.position.set(0, 0, 0);
+            controls.target.set(0, -0.4, 1.0);
+            controls.update();
+        }
+
+        function playSpotMedia(spot) {
+            if (!spot) return;
+            const targetHost = window.location.hostname || "127.0.0.1";
+            const mediaUrl = spot.b64 ? spot.b64 : ("http://" + targetHost + ":8082/" + spot.filename);
+
+            if (currentVideoElem) {
+                currentVideoElem.pause();
+                currentVideoElem.remove();
+                currentVideoElem = null;
+            }
+            if (currentVideoTexture) {
+                currentVideoTexture.dispose();
+                currentVideoTexture = null;
+            }
+            if (controls) {
+                applySavedOrInitialView();
+            }
+
+            // Immediately clear old texture so screen doesn't freeze on previous frame
+            skySphere.material = new THREE.MeshBasicMaterial({ color: 0x111122 });
+
+            currentSpotType = spot.type || (spot.filename.toUpperCase().endsWith('.LRF') ? 'video' : 'image');
+
+            if (currentSpotType === 'video') {
+                skySphere.rotation.set(0, 0, 0);
+
+                const video = document.createElement('video');
+                video.src = mediaUrl;
+                video.crossOrigin = 'anonymous';
+                video.loop = true;
+                video.muted = true;
+                video.playsInline = true;
+                video.play().catch(e => console.log("Autoplay:", e));
+                currentVideoElem = video;
+
+                currentVideoTexture = new THREE.VideoTexture(video);
+                currentVideoTexture.colorSpace = THREE.SRGBColorSpace;
+                skySphere.material = new THREE.MeshBasicMaterial({ map: currentVideoTexture });
+            } else {
+                skySphere.rotation.set(0, 0, 0);
+
+                const loader = new THREE.TextureLoader();
+                loader.setCrossOrigin('anonymous');
+                loader.load(mediaUrl, function(texture) {
+                    texture.colorSpace = THREE.SRGBColorSpace;
+                    skySphere.material = new THREE.MeshBasicMaterial({ map: texture });
+                });
+            }
+        }
+
+        // Build spot selector buttons and Save Viewpoint button
+        const spotBar = document.getElementById('vr-spot-bar');
+        if (droneSpots && droneSpots.length > 0) {
+            droneSpots.forEach((spot, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'cam-btn';
+                btn.innerText = spot.name;
+                if (idx === 0) btn.classList.add('active');
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('#vr-spot-bar .cam-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    playSpotMedia(spot);
+                });
+                spotBar.appendChild(btn);
+            });
+            
+            // Save Viewpoint Button
+            const saveBtn = document.createElement('button');
+            saveBtn.className = 'cam-btn';
+            saveBtn.style.background = 'linear-gradient(135deg, #10B981, #059669)';
+            saveBtn.style.color = '#ffffff';
+            saveBtn.style.fontWeight = 'bold';
+            saveBtn.innerText = '💾 현재 시점 저장';
+            saveBtn.addEventListener('click', () => {
+                const dir = new THREE.Vector3();
+                camera.getWorldDirection(dir);
+                const viewData = {
+                    dirX: dir.x,
+                    dirY: dir.y,
+                    dirZ: dir.z,
+                    fov: camera.fov
+                };
+                try {
+                    localStorage.setItem('saved_vr_viewpoint', JSON.stringify(viewData));
+                } catch(e) {}
+                try {
+                    window.parent.localStorage.setItem('saved_vr_viewpoint', JSON.stringify(viewData));
+                } catch(e) {}
+                alert("✅ 현재 바라보고 계신 시점이 360 VR 영구 기본 시점으로 저장되었습니다!\n새로고침(F5)을 하거나 탭을 이동해도 이 시점이 100% 고정됩니다.");
+            });
+            spotBar.appendChild(saveBtn);
+        }
+
+        function setCameraView(mode) {
+            isAnimatingCam = true;
+            targetControlPos.set(0, 0, 0);
+
+            if (mode === 'overview') {
+                targetCamPos.set(0, -imgHeight * 0.8, imgHeight * 0.8);
+            } else if (mode === 'front') {
+                targetCamPos.set(0, -imgHeight * 0.95, imgHeight * 0.25);
+            } else if (mode === 'drone') {
+                targetCamPos.set(0, -0.01, imgHeight * 1.25);
+            }
+        }
+
+        document.getElementById('btn-overview').addEventListener('click', () => setCameraView('overview'));
+        document.getElementById('btn-front').addEventListener('click', () => setCameraView('front'));
+        document.getElementById('btn-drone').addEventListener('click', () => setCameraView('drone'));
+        document.getElementById('btn-rotate').addEventListener('click', () => {
+            controls.autoRotate = !controls.autoRotate;
+            controls.autoRotateSpeed = 2.0;
+            const btn = document.getElementById('btn-rotate');
+            if (controls.autoRotate) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        const mapCameraState = {
+            pos: new THREE.Vector3(0, -imgHeight * 0.8, imgHeight * 0.8),
+            target: new THREE.Vector3(0, 0, 0),
+            fov: 60
+        };
+
+        // Main Tab Switching Logic
+        function switchTab(tab) {
+            const tabMap = document.getElementById('tab-map');
+            const tabVr = document.getElementById('tab-vr');
+            const camControls = document.getElementById('camera-controls');
+            const spotBar = document.getElementById('vr-spot-bar');
+            const instructions = document.getElementById('instructions');
+
+            if (tab === 'map') {
+                isVrMode = false;
+                isAnimatingCam = false;
+
+                tabMap.classList.add('active');
+                tabVr.classList.remove('active');
+                camControls.style.display = 'flex';
+                spotBar.style.display = 'none';
+                instructions.style.display = 'block';
+                labelRenderer.domElement.style.display = 'block';
+
+                meshes.forEach(m => m.visible = true);
+                if (groundPlane) groundPlane.visible = true;
+                if (skySphere) skySphere.visible = false;
+                if (currentVideoElem) currentVideoElem.pause();
+
+                controls.enabled = true;
+                controls.enableZoom = true;
+                controls.minDistance = 10;
+                controls.maxDistance = 5000;
+                controls.rotateSpeed = 1.0;
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.05;
+                controls.minPolarAngle = 0;
+                controls.maxPolarAngle = Math.PI - 0.01; // 100% full 360 degree unrestricted polar angle in 3D Map mode!
+
+                // Restore Map Camera cleanly to overview view
+                camera.fov = 60;
+                camera.position.set(0, -imgHeight * 0.8, imgHeight * 0.8);
+                controls.target.set(0, 0, 0);
+                camera.updateProjectionMatrix();
+                controls.update();
+            } else if (tab === 'vr') {
+                // Save Map Camera State before entering VR mode
+                if (!isVrMode) {
+                    mapCameraState.pos.copy(camera.position);
+                    mapCameraState.target.copy(controls.target);
+                    mapCameraState.fov = camera.fov;
+                }
+
+                isVrMode = true;
+                isAnimatingCam = false;
+
+                tabVr.classList.add('active');
+                tabMap.classList.remove('active');
+                camControls.style.display = 'none';
+                spotBar.style.display = 'flex';
+                instructions.style.display = 'none';
+                labelRenderer.domElement.style.display = 'none';
+
+                meshes.forEach(m => m.visible = false);
+                if (groundPlane) groundPlane.visible = false;
+                if (skySphere) skySphere.visible = true;
+
+                camera.position.set(0, 0, 0);
+                controls.enableZoom = false;
+                controls.rotateSpeed = -0.5;
+                controls.enableDamping = false;
+
+                // Restore VR Camera State & Viewpoint independently
+                applySavedOrInitialView();
+
+                if (droneSpots && droneSpots.length > 0 && !skySphere.material.map) {
+                    playSpotMedia(droneSpots[0]);
+                } else if (currentSpotType === 'video' && currentVideoElem) {
+                    currentVideoElem.play().catch(e => {});
+                }
+            }
+        }
+
+        window.addEventListener('wheel', (event) => {
+            if (isVrMode) {
+                event.preventDefault();
+                const zoomFactor = event.deltaY > 0 ? 3.5 : -3.5;
+                camera.fov = Math.max(20, Math.min(95, camera.fov + zoomFactor));
+                camera.updateProjectionMatrix();
+            }
+        }, { passive: false });
+
+        document.getElementById('tab-map').addEventListener('click', () => switchTab('map'));
+        document.getElementById('tab-vr').addEventListener('click', () => switchTab('vr'));
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (isVrMode && currentSpotType === 'video' && currentVideoElem && currentVideoElem.readyState >= 2 && currentVideoTexture) {
+                currentVideoTexture.needsUpdate = true;
+            }
+
+            if (isAnimatingCam) {
+                camera.position.lerp(targetCamPos, 0.08);
+                controls.target.lerp(targetControlPos, 0.08);
+                if (camera.position.distanceTo(targetCamPos) < 1) {
+                    isAnimatingCam = false;
+                }
+            }
+
+            controls.update();
+            checkLabelVisibility();
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        }
+        
+        animate();
+    </script>
+</body>
+</html>
