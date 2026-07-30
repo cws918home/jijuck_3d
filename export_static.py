@@ -41,16 +41,25 @@ def build_standalone():
     if os.path.exists(three60_folder):
         files = sorted(os.listdir(three60_folder))
         for fname in files:
-            if fname.endswith("_web.jpg"):
-                continue
             fname_upper = fname.upper()
-            if fname_upper.endswith(".LRF"):
-                drone_spots.append({
-                    "id": fname,
-                    "type": "video",
-                    "name": "📹 항공 360 비디오",
-                    "filename": f"{three60_folder}/{fname}"
-                })
+            if fname_upper.endswith(".LRF") or fname_upper.endswith(".MP4"):
+                if fname.endswith("_web.mp4"):
+                    target_v = fname
+                else:
+                    base_n = os.path.splitext(fname)[0]
+                    web_v = f"{base_n}_web.mp4"
+                    if os.path.exists(os.path.join(three60_folder, web_v)):
+                        target_v = web_v
+                    else:
+                        target_v = fname
+                
+                if not any(spot["id"] == "360_video_main" for spot in drone_spots):
+                    drone_spots.append({
+                        "id": "360_video_main",
+                        "type": "video",
+                        "name": "📹 항공 360 비디오",
+                        "filename": f"{three60_folder}/{target_v}"
+                    })
             elif fname_upper.endswith((".JPG", ".JPEG", ".PNG")):
                 web_filename = get_web_optimized_image(three60_folder, fname)
                 drone_spots.append({

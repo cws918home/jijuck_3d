@@ -507,7 +507,7 @@
         const targetControlPos = new THREE.Vector3(0, 0, 0);
 
         // 360 VR Drone Video Panorama (Official Three.js Standard Implementation)
-        const droneSpots = [{"id": "DJI_20260729145559_0019_D.JPG", "type": "image", "name": "\ud83d\udcf7 \ud56d\uacf5 360 \uc0ac\uc9c4", "filename": "360_2/DJI_20260729145559_0019_D_web.jpg"}, {"id": "DJI_20260729145630_0020_D.LRF", "type": "video", "name": "\ud83d\udcf9 \ud56d\uacf5 360 \ube44\ub514\uc624", "filename": "360_2/DJI_20260729145630_0020_D.LRF"}];
+        const droneSpots = [{"id": "DJI_20260729145559_0019_D.JPG", "type": "image", "name": "\ud83d\udcf7 \ud56d\uacf5 360 \uc0ac\uc9c4", "filename": "360_2/DJI_20260729145559_0019_D_web.jpg"}, {"id": "DJI_20260729145559_0019_D_web.jpg", "type": "image", "name": "\ud83d\udcf7 \ud56d\uacf5 360 \uc0ac\uc9c4", "filename": "360_2/DJI_20260729145559_0019_D_web.jpg"}, {"id": "360_video_main", "type": "video", "name": "\ud83d\udcf9 \ud56d\uacf5 360 \ube44\ub514\uc624", "filename": "360_2/DJI_20260729145630_0020_D_web.mp4"}];
         let isVrMode = false;
         let skySphere = null;
         let currentVideoElem = null;
@@ -563,7 +563,7 @@
         function playSpotMedia(spot) {
             if (!spot) return;
             const targetHost = window.location.hostname || "127.0.0.1";
-            const mediaUrl = spot.filename;
+            const mediaUrl = spot.b64 ? spot.b64 : ("http://" + targetHost + ":8082/" + spot.filename);
 
             if (currentVideoElem) {
                 currentVideoElem.pause();

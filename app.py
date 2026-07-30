@@ -1,9 +1,12 @@
 import streamlit as st
 import streamlit.components.v1 as components
+import os
+import base64
+import json
 from PIL import Image
 from utils import get_image_base64, parse_svg_to_polygons, generate_threejs_html
 
-st.set_page_config(layout="wide", page_title="3D Cadastral Visualization", initial_sidebar_state="collapsed")
+st.set_page_config(layout="wide", page_title="3D Cadastral & 360 VR Visualization", initial_sidebar_state="collapsed")
 
 # Hide Streamlit UI elements for a premium fullscreen look
 st.markdown("""
@@ -26,50 +29,6 @@ st.markdown("""
 base_image_path = "base.png"
 side_texture_path = "dirt_side_2.avif"
 svg_path = "jijuck_2.svg"
-
-import os
-import base64
-import json
-
-# --- Background Server for 360 Video and Photo Files ---
-import threading
-from http.server import SimpleHTTPRequestHandler, HTTPServer
-
-class VideoHTTPHandler(SimpleHTTPRequestHandler):
-    def __init__(self, *args, **kwargs):
-        three60_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "360_2")
-        super().__init__(*args, directory=three60_dir, **kwargs)
-
-    def end_headers(self):
-        self.send_header('Access-Control-Allow-Origin', '*')
-        super().end_headers()
-
-VideoHTTPHandler.extensions_map.update({
-    '.lrf': 'video/mp4',
-    '.LRF': 'video/mp4',
-    '.osv': 'video/mp4',
-    '.OSV': 'video/mp4',
-    '.jpg': 'image/jpeg',
-    '.JPG': 'image/jpeg',
-    '.jpeg': 'image/jpeg',
-    '.JPEG': 'image/jpeg',
-    '.png': 'image/png',
-    '.PNG': 'image/png'
-})
-
-def run_video_server():
-    try:
-        three60_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "360_2")
-        if os.path.exists(three60_dir):
-            server = HTTPServer(('0.0.0.0', 8082), VideoHTTPHandler)
-            server.serve_forever()
-    except Exception as e:
-        pass
-
-# Start server daemon
-if not any(t.name == "360_server" for t in threading.enumerate()):
-    t = threading.Thread(target=run_video_server, daemon=True, name="360_server")
-    t.start()
 
 # Logo setup
 logo_html = ""
@@ -100,7 +59,7 @@ try:
     with open(cadastral_data_path, "r", encoding="utf-8") as f:
         cadastral_data = json.load(f)
 except Exception as e:
-    st.warning(f"지적도 데이터를 불러오는 데 실패했습니다 (건물 위 텍스트가 표시되지 않습니다): {e}")
+    st.warning(f"지적도 데이터를 불러오는 데 실패했습니다: {e}")
 
 # Parse SVG
 with st.spinner("SVG 데이터를 파싱하는 중..."):
@@ -120,7 +79,6 @@ def get_web_optimized_image(three60_folder, fname):
     orig_path = os.path.join(three60_folder, fname)
     if not os.path.exists(web_path):
         try:
-            from PIL import Image
             Image.MAX_IMAGE_PIXELS = None
             img = Image.open(orig_path)
             # Resize 120MP MPO image to 8192x4096 (standard WebGL max 8K texture size)
@@ -130,7 +88,7 @@ def get_web_optimized_image(three60_folder, fname):
             return fname
     return web_fname
 
-# Scan 360_2 Drone Files (Photo & Video)
+# Scan 360_2 Drone Photo Files
 drone_spots = []
 three60_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), "360_2")
 if os.path.exists(three60_folder):
@@ -139,21 +97,14 @@ if os.path.exists(three60_folder):
         if fname.endswith("_web.jpg"):
             continue
         fname_upper = fname.upper()
-        if fname_upper.endswith(".LRF"):
-            drone_spots.append({
-                "id": fname,
-                "type": "video",
-                "name": "📹 항공 360 비디오",
-                "filename": fname
-            })
-        elif fname_upper.endswith((".JPG", ".JPEG", ".PNG")):
+        if fname_upper.endswith((".JPG", ".JPEG", ".PNG")):
             web_filename = get_web_optimized_image(three60_folder, fname)
             web_path = os.path.join(three60_folder, web_filename)
             img_b64 = get_image_base64(web_path)
             drone_spots.append({
                 "id": fname,
                 "type": "image",
-                "name": "📷 항공 360 사진",
+                "name": "📷 항공 360 파노라마",
                 "filename": web_filename,
                 "b64": img_b64
             })
@@ -175,9 +126,8 @@ with st.spinner("3D 뷰어 생성 중..."):
             cadastral_data=cadastral_data,
             drone_spots=drone_spots
         )
+        
+        components.html(html_content, height=1000, scrolling=False)
+        
     except Exception as e:
-        st.error(f"HTML 생성 에러: {e}")
-        st.stop()
-
-# Display in Streamlit
-components.html(html_content, height=1000)
+        st.error(f"HTML 뷰어 생성 오류: {e}")
