@@ -178,8 +178,74 @@
             -webkit-backdrop-filter: blur(12px);
             padding: 8px 12px;
             border-radius: 14px;
-            border: 1px solid rgba(100, 255, 218, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Mobile & Tablet Responsive Styles */
+        @media (max-width: 768px) {
+            #logo-container {
+                top: 10px;
+                left: 10px;
+                padding: 4px 6px;
+                border-radius: 10px;
+            }
+            #logo-container img {
+                max-width: 70px;
+                max-height: 35px;
+            }
+
+            #main-nav {
+                top: 10px;
+                padding: 4px;
+                gap: 4px;
+                border-radius: 14px;
+            }
+            .nav-tab {
+                padding: 6px 10px;
+                font-size: 11px;
+                border-radius: 10px;
+            }
+
+            #camera-controls {
+                top: auto;
+                bottom: 15px;
+                left: 50%;
+                right: auto;
+                transform: translateX(-50%);
+                padding: 6px 8px;
+                gap: 6px;
+                border-radius: 12px;
+                width: max-content;
+                max-width: 94vw;
+                overflow-x: auto;
+            }
+            .cam-btn {
+                padding: 6px 8px;
+                font-size: 11px;
+                white-space: nowrap;
+            }
+
+            #vr-spot-bar {
+                top: 52px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 90vw;
+                flex-wrap: wrap;
+                justify-content: center;
+                padding: 6px;
+                gap: 6px;
+            }
+
+            #instructions {
+                bottom: 65px;
+                left: 10px;
+                right: 10px;
+                padding: 8px 12px;
+                font-size: 11px;
+                line-height: 1.4;
+                border-radius: 12px;
+            }
         }
     </style>
     <!-- Import Three.js -->
