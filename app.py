@@ -11,16 +11,33 @@ st.set_page_config(layout="wide", page_title="3D Cadastral & 360 VR Visualizatio
 # Hide Streamlit UI elements for a premium fullscreen look
 st.markdown("""
     <style>
-        #MainMenu {visibility: hidden;}
-        header {visibility: hidden;}
-        footer {visibility: hidden;}
+        #MainMenu {visibility: hidden; display: none !important;}
+        header {visibility: hidden; display: none !important;}
+        footer {visibility: hidden; display: none !important;}
+        .stAppViewContainer, .stAppHeader, .stMainBlockContainer, [data-testid="stAppViewContainer"] {
+            overflow: hidden !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
         .block-container {
             padding: 0rem !important;
             max-width: 100% !important;
+            margin: 0 !important;
         }
         iframe {
             height: 100vh !important;
+            width: 100vw !important;
             border: none;
+            overflow: hidden !important;
+        }
+        ::-webkit-scrollbar {
+            display: none !important;
+            width: 0px !important;
+            height: 0px !important;
+        }
+        * {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
         }
     </style>
 """, unsafe_allow_html=True)

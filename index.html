@@ -7,30 +7,25 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap');
 
-        body { 
-            margin: 0; padding: 0; overflow: hidden; 
+        html, body { 
+            margin: 0; padding: 0; 
+            overflow: hidden !important; 
+            width: 100vw; height: 100vh;
             font-family: 'Outfit', sans-serif; 
             background: linear-gradient(135deg, #1e1e2f 0%, #2a2a40 100%);
             color: #ffffff;
             cursor: default; 
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
+        }
+        ::-webkit-scrollbar {
+            display: none !important;
+            width: 0px !important;
+            height: 0px !important;
         }
         #canvas-container { width: 100vw; height: 100vh; display: block; position: absolute; top: 0; left: 0; z-index: 1; }
         #instructions {
-            position: absolute;
-            bottom: 30px;
-            left: 30px;
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #f0f0f0;
-            padding: 18px 24px;
-            border-radius: 16px;
-            font-size: 15px;
-            pointer-events: none;
-            line-height: 1.6;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            z-index: 100;
+            display: none !important;
         }
         .highlight-text { color: #64ffda; font-weight: 600; text-shadow: 0 0 8px rgba(100, 255, 218, 0.4); }
         #logo-container {
@@ -182,6 +177,148 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
         }
 
+        /* Parcel Buttons Bar (Collapsible Drawer) */
+        #parcel-bar-container {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            max-width: 95vw;
+            pointer-events: auto;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #btn-parcel-toggle {
+            background: rgba(10, 10, 20, 0.92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 2px solid rgba(100, 255, 218, 0.5);
+            color: #ffffff;
+            padding: 12px 28px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6), 0 0 15px rgba(100, 255, 218, 0.25);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #btn-parcel-toggle:hover {
+            background: rgba(20, 20, 35, 0.98);
+            border-color: #64ffda;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 25px rgba(100, 255, 218, 0.5);
+            transform: translateY(-3px) scale(1.03);
+        }
+        #parcel-toggle-icon {
+            font-size: 14px;
+            color: #64ffda;
+            font-weight: 800;
+            background: rgba(100, 255, 218, 0.15);
+            padding: 4px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(100, 255, 218, 0.3);
+        }
+        #parcel-bar-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            max-height: 500px;
+            opacity: 1;
+            overflow: hidden;
+        }
+        #parcel-bar-container.collapsed #parcel-bar-body {
+            max-height: 0px;
+            opacity: 0;
+            pointer-events: none;
+            margin: 0;
+            padding: 0;
+        }
+        #parcel-bar-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(10, 10, 15, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 5px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        }
+        #parcel-bar-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #64ffda;
+        }
+        .parcel-action-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .parcel-action-btn:hover {
+            background: rgba(100, 255, 218, 0.2);
+            color: #64ffda;
+            border-color: #64ffda;
+        }
+        #parcel-bar {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 5px;
+            background: rgba(10, 10, 15, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 8px 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            max-width: 90vw;
+        }
+        .parcel-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #dddddd;
+            min-width: 36px;
+            height: 32px;
+            padding: 0 6px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .parcel-btn:hover {
+            background: rgba(100, 255, 218, 0.2);
+            color: #64ffda;
+            border-color: #64ffda;
+        }
+        .parcel-btn.active {
+            background: linear-gradient(135deg, #64ffda 0%, #00b4d8 100%);
+            color: #0a0a0f;
+            border-color: #64ffda;
+            font-weight: 700;
+            box-shadow: 0 0 10px rgba(100, 255, 218, 0.6);
+        }
+
         /* Mobile & Tablet Responsive Styles */
         @media (max-width: 768px) {
             #logo-container {
@@ -209,20 +346,20 @@
 
             #camera-controls {
                 top: auto;
-                bottom: 15px;
+                bottom: 10px;
                 left: 50%;
                 right: auto;
                 transform: translateX(-50%);
-                padding: 6px 8px;
-                gap: 6px;
+                padding: 4px 6px;
+                gap: 4px;
                 border-radius: 12px;
                 width: max-content;
                 max-width: 94vw;
                 overflow-x: auto;
             }
             .cam-btn {
-                padding: 6px 8px;
-                font-size: 11px;
+                padding: 5px 8px;
+                font-size: 10px;
                 white-space: nowrap;
             }
 
@@ -237,14 +374,33 @@
                 gap: 6px;
             }
 
-            #instructions {
-                bottom: 65px;
-                left: 10px;
-                right: 10px;
-                padding: 8px 12px;
+            #parcel-bar-container {
+                bottom: 45px;
+                max-width: 98vw;
+                gap: 4px;
+            }
+            #parcel-bar-header {
+                padding: 3px 8px;
+                gap: 6px;
+            }
+            #parcel-bar-title {
                 font-size: 11px;
-                line-height: 1.4;
-                border-radius: 12px;
+            }
+            .parcel-action-btn {
+                padding: 2px 6px;
+                font-size: 10px;
+            }
+            #parcel-bar {
+                grid-template-columns: repeat(6, 1fr);
+                gap: 4px;
+                padding: 6px;
+                max-width: 96vw;
+            }
+            .parcel-btn {
+                min-width: 30px;
+                height: 28px;
+                font-size: 11px;
+                padding: 0 4px;
             }
         }
     </style>
@@ -288,9 +444,23 @@
 
     <div id="vr-spot-bar"></div>
 
+    <!-- Parcel Toggle Buttons Bar (Collapsible Drawer) -->
+    <div id="parcel-bar-container" class="collapsed">
+        <button id="btn-parcel-toggle">
+            <span>🏷️ 필지 목록 (1번 ~ 31번)</span>
+            <span id="parcel-toggle-icon">▲ 목록 펼치기</span>
+        </button>
+        <div id="parcel-bar-body">
+            <div id="parcel-bar-header">
+                <button class="parcel-action-btn" id="btn-parcel-all">⚡ 전체 솟아오르기</button>
+                <button class="parcel-action-btn" id="btn-parcel-reset">🔄 전체 평평하게</button>
+            </div>
+            <div id="parcel-bar"></div>
+        </div>
+    </div>
+
     <div id="instructions">
-        • 토지 구획 위에 <span class="highlight-text">마우스를 올리면</span> 영역이 표시됩니다.<br>
-        • 구획을 <span class="highlight-text">클릭 후 위아래로 드래그</span>하여 높이를 조절하세요.
+        • 하단 <span class="highlight-text">필지 번호 버튼(1~31번)</span> 또는 <span class="highlight-text">3D 땅 필지</span>를 클릭하여 토지를 올리고 내리세요.
     </div>
 
     <script type="module">
@@ -431,10 +601,21 @@
                     outline.position.z = defaultExtrudeHeight + 0.1;
                     mesh.add(outline);
 
-                    mesh.userData = { index, shape, height: defaultExtrudeHeight, outline, topMaterial: topMat, label: labelObj };
+                    mesh.userData = { 
+                        index, 
+                        seqNo: seqIndex !== -1 ? (seqIndex + 1) : null,
+                        shape, 
+                        height: defaultExtrudeHeight, 
+                        targetHeight: defaultExtrudeHeight,
+                        outline, 
+                        topMaterial: topMat, 
+                        label: labelObj 
+                    };
                     scene.add(mesh);
                     meshes.push(mesh);
                 });
+
+                buildParcelButtons();
             });
         }
 
@@ -462,6 +643,80 @@
             if (mesh.userData.label) mesh.userData.label.position.z = newHeight + 10;
         }
 
+        const parcelBar = document.getElementById('parcel-bar');
+        const parcelBtnMap = {};
+
+        function buildParcelButtons() {
+            if (!parcelBar) return;
+            parcelBar.innerHTML = '';
+            for (let i = 1; i <= 31; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'parcel-btn';
+                btn.innerText = i + '번';
+                btn.dataset.seq = i;
+                btn.addEventListener('click', () => toggleParcel(i));
+                parcelBar.appendChild(btn);
+                parcelBtnMap[i] = btn;
+            }
+        }
+
+        function toggleParcel(seqNo) {
+            const mesh = meshes.find(m => m.userData && m.userData.seqNo === seqNo);
+            const btn = parcelBtnMap[seqNo];
+            if (!mesh) return;
+
+            if (mesh.userData.targetHeight > 1.0) {
+                // Turn OFF -> Flatten
+                mesh.userData.targetHeight = defaultExtrudeHeight;
+                if (btn) btn.classList.remove('active');
+            } else {
+                // Turn ON -> Elevate
+                mesh.userData.targetHeight = 60;
+                if (btn) btn.classList.add('active');
+            }
+        }
+
+        const btnParcelAll = document.getElementById('btn-parcel-all');
+        if (btnParcelAll) {
+            btnParcelAll.addEventListener('click', () => {
+                meshes.forEach(m => {
+                    if (m.userData && m.userData.seqNo) {
+                        m.userData.targetHeight = 60;
+                        if (parcelBtnMap[m.userData.seqNo]) parcelBtnMap[m.userData.seqNo].classList.add('active');
+                    }
+                });
+            });
+        }
+
+        const btnParcelReset = document.getElementById('btn-parcel-reset');
+        if (btnParcelReset) {
+            btnParcelReset.addEventListener('click', () => {
+                meshes.forEach(m => {
+                    if (m.userData && m.userData.seqNo) {
+                        m.userData.targetHeight = defaultExtrudeHeight;
+                        if (parcelBtnMap[m.userData.seqNo]) parcelBtnMap[m.userData.seqNo].classList.remove('active');
+                    }
+                });
+            });
+        }
+
+        const btnParcelToggle = document.getElementById('btn-parcel-toggle');
+        const parcelContainer = document.getElementById('parcel-bar-container');
+        const parcelToggleIcon = document.getElementById('parcel-toggle-icon');
+
+        if (btnParcelToggle && parcelContainer) {
+            btnParcelToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (parcelContainer.classList.contains('collapsed')) {
+                    parcelContainer.classList.remove('collapsed');
+                    if (parcelToggleIcon) parcelToggleIcon.innerText = '▼ 목록 접기';
+                } else {
+                    parcelContainer.classList.add('collapsed');
+                    if (parcelToggleIcon) parcelToggleIcon.innerText = '▲ 목록 펼치기';
+                }
+            });
+        }
+
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
@@ -473,21 +728,9 @@
             }
             if (event.button === 2) { isRightClick = true; return; }
             isRightClick = false;
-            
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-            raycaster.setFromCamera(mouse, camera);
-            const visibleMeshes = meshes.filter(m => m.visible);
-            const intersects = raycaster.intersectObjects(visibleMeshes, false);
-            
-            if (intersects.length > 0) {
-                draggedMesh = intersects[0].object;
-                isDragging = true;
-                startY = event.clientY;
-                startHeight = draggedMesh.userData.height;
-                controls.enabled = false;
-                document.body.style.cursor = 'ns-resize';
-            }
+            pointerDownPos.x = event.clientX;
+            pointerDownPos.y = event.clientY;
+            pointerDownTime = Date.now();
         });
 
         window.addEventListener('pointermove', (event) => {
@@ -495,36 +738,45 @@
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-            if (isDragging && draggedMesh) {
-                updateMeshHeight(draggedMesh, startHeight - (event.clientY - startY));
-            } else {
+            raycaster.setFromCamera(mouse, camera);
+            const visibleMeshes = meshes.filter(m => m.visible);
+            const intersects = raycaster.intersectObjects(visibleMeshes, false);
+            if (intersects.length > 0) {
+                if (hoveredMesh !== intersects[0].object) {
+                    if (hoveredMesh) hoveredMesh.userData.topMaterial.emissive.setHex(0x000000);
+                    hoveredMesh = intersects[0].object;
+                    hoveredMesh.userData.topMaterial.emissive.setHex(0x444444);
+                    document.body.style.cursor = 'pointer';
+                }
+            } else if (hoveredMesh) {
+                hoveredMesh.userData.topMaterial.emissive.setHex(0x000000);
+                hoveredMesh = null;
+                document.body.style.cursor = 'default';
+            }
+        });
+
+        window.addEventListener('pointerup', (event) => {
+            if (isVrMode || isRightClick) {
+                document.body.style.cursor = 'default';
+                return;
+            }
+            const clickDist = Math.hypot(event.clientX - pointerDownPos.x, event.clientY - pointerDownPos.y);
+            const clickTime = Date.now() - pointerDownTime;
+
+            if (clickDist < 6 && clickTime < 300) {
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
                 raycaster.setFromCamera(mouse, camera);
                 const visibleMeshes = meshes.filter(m => m.visible);
                 const intersects = raycaster.intersectObjects(visibleMeshes, false);
                 if (intersects.length > 0) {
-                    if (hoveredMesh !== intersects[0].object) {
-                        if (hoveredMesh) hoveredMesh.userData.topMaterial.emissive.setHex(0x000000);
-                        hoveredMesh = intersects[0].object;
-                        hoveredMesh.userData.topMaterial.emissive.setHex(0x444444);
-                        document.body.style.cursor = 'pointer';
+                    const targetM = intersects[0].object;
+                    if (targetM.userData && targetM.userData.seqNo) {
+                        toggleParcel(targetM.userData.seqNo);
                     }
-                } else if (hoveredMesh) {
-                    hoveredMesh.userData.topMaterial.emissive.setHex(0x000000);
-                    hoveredMesh = null;
-                    document.body.style.cursor = 'default';
                 }
             }
-        });
 
-        window.addEventListener('pointerup', () => {
-            isDragging = false;
-            draggedMesh = null;
-            isRightClick = false;
-            controls.enabled = true;
-            if (isVrMode) {
-                document.body.style.cursor = 'default';
-                return;
-            }
             document.body.style.cursor = hoveredMesh ? 'pointer' : 'default';
         });
 
@@ -771,6 +1023,9 @@
                 instructions.style.display = 'block';
                 labelRenderer.domElement.style.display = 'block';
 
+                const parcelContainer = document.getElementById('parcel-bar-container');
+                if (parcelContainer) parcelContainer.style.display = 'flex';
+
                 meshes.forEach(m => m.visible = true);
                 if (groundPlane) groundPlane.visible = true;
                 if (skySphere) skySphere.visible = false;
@@ -809,6 +1064,9 @@
                 spotBar.style.display = 'flex';
                 instructions.style.display = 'none';
                 labelRenderer.domElement.style.display = 'none';
+
+                const parcelContainer = document.getElementById('parcel-bar-container');
+                if (parcelContainer) parcelContainer.style.display = 'none';
 
                 meshes.forEach(m => m.visible = false);
                 if (groundPlane) groundPlane.visible = false;
@@ -856,6 +1114,14 @@
                     isAnimatingCam = false;
                 }
             }
+
+            // Smooth lerping for parcel extrusion heights
+            meshes.forEach(m => {
+                if (m.userData && m.userData.targetHeight !== undefined && Math.abs(m.userData.height - m.userData.targetHeight) > 0.05) {
+                    const nextH = THREE.MathUtils.lerp(m.userData.height, m.userData.targetHeight, 0.15);
+                    updateMeshHeight(m, nextH);
+                }
+            });
 
             controls.update();
             checkLabelVisibility();
