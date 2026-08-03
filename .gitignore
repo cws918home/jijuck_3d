@@ -5,3 +5,8 @@
 360/
 __pycache__/
 .DS_Store
+node_modules/
+dist/
+public/The_Citadel.mov
+compress_video.py
+compress_video_web.py

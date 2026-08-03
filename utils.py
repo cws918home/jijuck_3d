@@ -13,8 +13,8 @@ def get_image_base64(image_path):
         encoded_string = base64.b64encode(img_file.read()).decode("utf-8")
     return f"data:{mime_type};base64,{encoded_string}"
 
-def parse_svg_to_polygons(svg_path, num_samples=100):
-    """Parse an SVG file and return a list of polygons (list of [x, y] coordinates)."""
+def parse_svg_to_polygons(svg_path, num_samples=100, x_offset=4.0, y_offset=1.0):
+    """Parse an SVG file and return a list of polygons (list of [x, y] coordinates), with optional X and Y offsets."""
     paths, attributes = svg2paths(svg_path)
     polygons = []
     
@@ -24,7 +24,7 @@ def parse_svg_to_polygons(svg_path, num_samples=100):
             for i in range(num_samples):
                 t = i / float(num_samples - 1)
                 point = subpath.point(t)
-                subpoly.append([point.real, point.imag])
+                subpoly.append([point.real + x_offset, point.imag + y_offset])
             if subpoly:
                 polygons.append(subpoly)
                 

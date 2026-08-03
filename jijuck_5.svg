@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1275" height="718" viewBox="0 0 1275 718">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #ffe183;
+        stroke: #000;
+        stroke-width: 1px;
+        fill-rule: evenodd;
+      }
+    </style>
+  </defs>
+  <g transform="translate(4, 0)">
+  <path id="_1" data-name="1" class="cls-1" d="M889,419h82l20,80-15,17-46,1-21-14Z"/>
+  <path id="_2" data-name="2" class="cls-1" d="M888,419l-1-12-1-93,73,1,2,31,2,37,2,11,5,25H888Z"/>
+  <path id="_3" data-name="3" class="cls-1" d="M960,314l-2-39-2-55-19-22H907l-31,26,5,9,2,5,2,6,1,9,1,60Z"/>
+  <path id="_4" data-name="4" class="cls-1" d="M829,94l21,11,17,13,17,9,1,48,1,5,3,6,6,6,11,6-31,26-2-6-4-4-4-4-10-8-57-33Z"/>
+  <path id="_5" data-name="5" class="cls-1" d="M732,49l6,1,50,23,41,21-31,76-45-26-8-3-6-2-7-1V49Z"/>
+  <path id="_6" data-name="6" class="cls-1" d="M733,48l-21-4-14,1-12,3-11,3-9,4-9,7-8,9L638,82l-5,6,45,63,8-5,7-4,6-2,6-2,6-2h16l5,1Z"/>
+  <path id="_7" data-name="7" class="cls-1" d="M632,89l-11,13-8,8-6,7-8,9-9,10-9,9-8,7,42,65,7-6,8-7,7-7,8-10,9-10,7-8,7-8,10-9Z"/>
+  <path id="_8" data-name="8" class="cls-1" d="M573,152l-74,58,38,65,36-23,25-19,17-15Z"/>
+  <path id="_9" data-name="9" class="cls-1" d="M498,210l-23,14s-14.413,8.409-15,9-19,10-19,10l-26,16,43,66,79-51Z"/>
+  <path id="_10" data-name="10" class="cls-1" d="M415,259l-8,5-9,5s-10.316,5.637-11,6-15,8-15,8l-16,8,4,87s5.464-3.909,6-4,15-7,15-7l17-9,12-6,11-5,12-7,12-7,13-8-42-65Z"/>
+  <path id="_11" data-name="11" class="cls-1" d="M356,291l-29,14-28,8-7,5-1,100,69,1V378Z"/>
+  <path id="_12" data-name="12" class="cls-1" d="M388,406l21-20,45-26-1,147H406l-18-20V406Z"/>
+  <path id="_13" data-name="13" class="cls-1" d="M454,361l87-57V422H454V361Z"/>
+  <path id="_14" data-name="14" class="cls-1" d="M542,304l70-49-2,145-68,1V304Z"/>
+  <path id="_15" data-name="15" class="cls-1" d="M612,254l25-22,15-12,12-1,14,6,9,9,4,9v83H611Z"/>
+  <path id="_16" data-name="16" class="cls-1" d="M611,326h80l-1,95H610Z"/>
+  <path id="_17" data-name="17" class="cls-1" d="M690,421l2,77-18,19-64,1V421h80Z"/>
+  <path id="_18" data-name="18" class="cls-1" d="M541,400l-1,118h70V399Z"/>
+  <path id="_19" data-name="19" class="cls-1" d="M541,421H454v85h54v11l33,1V421Z"/>
+  <path id="_20" data-name="20" class="cls-1" d="M717,294l-1-86,3-9,4-7,7-9,11-7,8-1,8,1,33,19-1,97Z"/>
+  <path id="_21" data-name="21" class="cls-1" d="M789,292l-1,111-72-1,1-64V294Z"/>
+  <path id="_22" data-name="22" class="cls-1" d="M716,403l1,96,20,18,51,1V403H716Z"/>
+  <path id="_23" data-name="23" class="cls-1" d="M790,195l-1,127h71l-1-71-5-13-6-8-20-13-20-11Z"/>
+  <path id="_24" data-name="24" class="cls-1" d="M789,322h71v19l1,34v25l1,9,2,16-75,1V322Z"/>
+  <path id="_25" data-name="25" class="cls-1" d="M788,426l76-1,16,69-1,4-17,19-73,1Z"/>
+  <path id="_26" data-name="26" class="cls-1" d="M947,547l38,1,20,14,19,40,11,25,7,29-67-1-28-7V547Z"/>
+  <path id="_27" data-name="27" class="cls-1" d="M947,547l-86-2,1,92h51l35,11Z"/>
+  <path id="_28" data-name="28" class="cls-1" d="M773,545h88l1,92H773V545Z"/>
+  <path id="_29" data-name="29" class="cls-1" d="M685,546l88-1v92H684Z"/>
+  <path id="_30" data-name="30" class="cls-1" d="M596,547l89-1-1,91H596V547Z"/>
+  <path id="_31" data-name="31" class="cls-1" d="M596,547H529l-23,21v70l90-1V547Z"/>
+  <path id="관라실" class="cls-1" d="M360,418v74l-20,20H289l2-94h69Z"/>
+  <path class="cls-1" d="M344,564l69-1,15,14,7,8,2,6v44H345Z"/>
+  <path class="cls-1" d="M259,565l85-1,1,71H258Z"/>
+  <path class="cls-1" d="M259,565l-89,1,2,30,2,21,2,18h82Z"/>
+  </g>
+</svg>

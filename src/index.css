@@ -1,0 +1,803 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap');
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100dvh;
+  overflow: hidden !important;
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #090a10;
+  color: #ffffff;
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+::-webkit-scrollbar {
+  display: none !important;
+  width: 0px !important;
+  height: 0px !important;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* App Container */
+.app-container {
+  position: relative;
+  width: 100vw;
+  height: 100dvh;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 50%, #151828 0%, #090a10 100%);
+}
+
+/* Canvas Container */
+.canvas-container {
+  width: 100vw;
+  height: 100dvh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+/* 3DGS Viewer iframe (fullscreen) */
+.threeDgs-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100dvh;
+  border: none;
+  z-index: 1;
+}
+
+/* ==========================================================================
+   Top Header Floating Dock (Navbar)
+   ========================================================================== */
+.top-navbar-dock {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(12, 14, 24, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 8px 16px;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  max-width: 95vw;
+}
+
+.brand-logo-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  padding: 2px 4px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.brand-logo-badge img {
+  height: 135px;
+  max-height: 165px;
+  max-width: 340px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.65));
+}
+
+.nav-tab-group {
+  display: flex;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 4px;
+  border-radius: 20px;
+}
+
+.nav-tab-pill {
+  background: transparent;
+  border: none;
+  color: #a0a5ba;
+  padding: 8px 18px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.nav-tab-pill:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+}
+.nav-tab-pill.active {
+  background: linear-gradient(135deg, #64ffda 0%, #00b4d8 100%);
+  color: #08090e;
+/* Sequential Click Order Mode Toggle Button */
+.btn-seq-mode-toggle {
+  background: rgba(100, 255, 218, 0.15);
+  border: 1px solid rgba(100, 255, 218, 0.5);
+  color: #64ffda;
+  padding: 8px 16px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+}
+.btn-seq-mode-toggle:hover {
+  background: rgba(100, 255, 218, 0.3);
+  box-shadow: 0 0 15px rgba(100, 255, 218, 0.4);
+}
+.btn-seq-mode-toggle.active {
+  background: linear-gradient(135deg, #64ffda 0%, #00b4d8 100%);
+  color: #08090e;
+  border-color: #64ffda;
+  box-shadow: 0 0 20px rgba(100, 255, 218, 0.6);
+  animation: pulse-seq 1.5s infinite alternate;
+}
+@keyframes pulse-seq {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.04); }
+}
+
+.btn-seq-undo {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-seq-undo:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Floating Banner for Sequential Click Assignment */
+.seq-floating-banner {
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 105;
+  background: rgba(12, 14, 24, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 2px solid #64ffda;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(100, 255, 218, 0.4);
+  padding: 10px 24px;
+  border-radius: 20px;
+  text-align: center;
+  pointer-events: none;
+  animation: slideDown 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes slideDown {
+  0% { transform: translate(-50%, -20px); opacity: 0; }
+  100% { transform: translate(-50%, 0); opacity: 1; }
+}
+.seq-banner-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+}
+.seq-banner-title strong {
+  color: #64ffda;
+  font-size: 17px;
+}
+.seq-banner-sub {
+  font-size: 12px;
+  color: #a0a5ba;
+  margin-top: 2px;
+}
+
+/* Interactive Edit Mode Toggle Button */
+.btn-edit-mode-toggle {
+  background: rgba(255, 179, 0, 0.15);
+  border: 1px solid rgba(255, 179, 0, 0.5);
+  color: #ffca28;
+  padding: 8px 16px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+}
+.btn-edit-mode-toggle:hover {
+  background: rgba(255, 179, 0, 0.3);
+  box-shadow: 0 0 15px rgba(255, 179, 0, 0.4);
+}
+.btn-edit-mode-toggle.active {
+  background: linear-gradient(135deg, #ffb300 0%, #ff8f00 100%);
+  color: #08090e;
+  border-color: #ffb300;
+  box-shadow: 0 0 20px rgba(255, 179, 0, 0.6);
+}
+
+/* Modal Backdrop & Card */
+.modal-backdrop {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  background: rgba(4, 6, 12, 0.85) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  z-index: 999999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 20px !important;
+  pointer-events: auto !important;
+}
+
+.modal-card {
+  position: relative !important;
+  z-index: 1000000 !important;
+  background: #101424 !important;
+  border: 2px solid #64ffda !important;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.9), 0 0 40px rgba(100, 255, 218, 0.3) !important;
+  border-radius: 24px !important;
+  width: 100% !important;
+  max-width: 460px !important;
+  overflow: hidden !important;
+  pointer-events: auto !important;
+  animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+@keyframes modalPop {
+  0% { transform: scale(0.85); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+}
+.modal-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #64ffda;
+  margin: 0;
+}
+.btn-close-modal {
+  background: transparent;
+  border: none;
+  color: #a0a5ba;
+  font-size: 20px;
+  cursor: pointer;
+}
+.btn-close-modal:hover { color: #ffffff; }
+
+.modal-form-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #d0d5e8;
+}
+
+.modal-input {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  outline: none;
+  transition: all 0.2s ease;
+}
+.modal-input:focus {
+  border-color: #64ffda;
+  box-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
+}
+.modal-input.highlight-input {
+  border-color: #ffb300;
+  color: #ffca28;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.input-hint {
+  font-size: 11px;
+  color: #ffb300;
+  font-weight: 500;
+}
+
+.modal-preview-badge {
+  background: rgba(100, 255, 218, 0.08);
+  border: 1px dashed rgba(100, 255, 218, 0.3);
+  padding: 12px;
+  border-radius: 14px;
+  text-align: center;
+}
+.preview-label { font-size: 11px; color: #a0a5ba; }
+.preview-content { font-size: 15px; color: #64ffda; margin-top: 2px; }
+
+.modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn-modal-save {
+  background: linear-gradient(135deg, #64ffda 0%, #00b4d8 100%);
+  color: #08090e;
+  border: none;
+  padding: 12px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-modal-save:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(100, 255, 218, 0.4);
+}
+
+.btn-modal-export {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  padding: 10px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-modal-export:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.mode-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 6px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #64ffda;
+  box-shadow: 0 0 10px #64ffda;
+  animation: pulse-dot 2s infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.6; }
+}
+.status-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64ffda;
+}
+
+/* ==========================================================================
+   Camera Floating Toolbar (Top Right)
+   ========================================================================== */
+.camera-floating-toolbar {
+  position: absolute;
+  top: 85px;
+  right: 24px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cam-dock-btn {
+  background: rgba(12, 14, 24, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  transition: all 0.25s ease;
+}
+.cam-dock-btn:hover {
+  background: rgba(20, 24, 40, 0.95);
+  border-color: #64ffda;
+  color: #64ffda;
+  transform: translateX(-4px);
+  box-shadow: 0 8px 24px rgba(100, 255, 218, 0.25);
+}
+.cam-dock-btn.active-edit {
+  background: linear-gradient(135deg, #ffb300 0%, #ff8f00 100%);
+  color: #08090e;
+  border-color: #ffb300;
+  font-weight: 800;
+  box-shadow: 0 0 20px rgba(255, 179, 0, 0.7);
+  animation: pulse-edit 1.5s infinite alternate;
+}
+@keyframes pulse-edit {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.05); }
+}
+
+/* ==========================================================================
+   Parcel Collapsible Drawer (Bottom Center)
+   ========================================================================== */
+.parcel-drawer-container {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  max-width: 95vw;
+  pointer-events: auto;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-parcel-toggle {
+  background: rgba(12, 14, 24, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 2px solid rgba(100, 255, 218, 0.4);
+  color: #ffffff;
+  padding: 12px 28px;
+  border-radius: 30px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 18px rgba(100, 255, 218, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-parcel-toggle:hover {
+  background: rgba(20, 24, 40, 0.98);
+  border-color: #64ffda;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7), 0 0 25px rgba(100, 255, 218, 0.45);
+  transform: translateY(-3px) scale(1.02);
+}
+
+.selected-count-badge {
+  background: linear-gradient(135deg, #64ffda 0%, #00b4d8 100%);
+  color: #08090e;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 12px;
+}
+
+.parcel-toggle-icon {
+  font-size: 13px;
+  color: #64ffda;
+  font-weight: 800;
+  background: rgba(100, 255, 218, 0.15);
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(100, 255, 218, 0.3);
+}
+
+.parcel-drawer-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  max-height: 500px;
+  opacity: 1;
+  overflow: hidden;
+}
+
+.parcel-drawer-container.collapsed .parcel-drawer-body {
+  max-height: 0px;
+  opacity: 0;
+  pointer-events: none;
+  margin: 0;
+  padding: 0;
+}
+
+.parcel-drawer-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(12, 14, 24, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 6px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.parcel-action-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.parcel-action-btn:hover {
+  background: rgba(100, 255, 218, 0.2);
+  color: #64ffda;
+  border-color: #64ffda;
+}
+
+.parcel-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 6px;
+  background: rgba(12, 14, 24, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 10px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6);
+  max-width: 90vw;
+}
+
+.parcel-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #d0d5e8;
+  min-width: 38px;
+  height: 34px;
+  padding: 0 6px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.parcel-btn:hover {
+  background: rgba(100, 255, 218, 0.2);
+  color: #64ffda;
+  border-color: #64ffda;
+}
+.parcel-btn.active {
+  background: linear-gradient(135deg, #64ffda 0%, #00b4d8 100%);
+  color: #08090e;
+  border-color: #64ffda;
+  font-weight: 700;
+  box-shadow: 0 0 12px rgba(100, 255, 218, 0.6);
+}
+
+/* ==========================================================================
+   CSS2D Land Parcel Badge (Slightly Larger & Prominent)
+   ========================================================================== */
+.building-label, .building-label * {
+  pointer-events: none !important;
+}
+.building-label {
+  background: rgba(9, 10, 16, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #ffffff;
+  padding: 8px 14px;
+  border-radius: 12px;
+  text-align: center;
+  border: 2px solid rgba(100, 255, 218, 0.5);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.75), 0 0 15px rgba(100, 255, 218, 0.3);
+  white-space: pre-wrap;
+  transition: opacity 0.25s ease;
+}
+.building-label .seq {
+  font-weight: 800;
+  font-size: 14px;
+  color: #64ffda;
+  margin-bottom: 3px;
+  text-shadow: 0 0 10px rgba(100, 255, 218, 0.7);
+  letter-spacing: 0.5px;
+}
+.building-label .area {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   Mobile & Tablet Responsive Breakpoints
+   ========================================================================== */
+@media (max-width: 900px) {
+  .top-navbar-dock {
+    top: 12px;
+    padding: 6px 10px;
+    gap: 8px;
+    border-radius: 20px;
+    width: 96vw;
+    justify-content: space-between;
+  }
+  .brand-logo-badge {
+    padding: 4px 8px;
+  }
+  .brand-logo-badge img {
+    max-height: 22px;
+    max-width: 80px;
+  }
+  .nav-tab-pill {
+    padding: 6px 10px;
+    font-size: 12px;
+    border-radius: 12px;
+  }
+  .tab-icon {
+    font-size: 13px;
+  }
+  .tab-label {
+    display: inline;
+  }
+  .mode-status-badge {
+    display: none;
+  }
+
+  .camera-floating-toolbar {
+    top: auto;
+    bottom: 80px;
+    right: 12px;
+    gap: 6px;
+  }
+  .cam-dock-btn {
+    padding: 8px 10px;
+    border-radius: 14px;
+  }
+  .cam-dock-btn .btn-text {
+    display: none;
+  }
+  .cam-dock-btn .btn-icon {
+    font-size: 16px;
+  }
+
+  .parcel-drawer-container {
+    bottom: 16px;
+    left: 12px;
+    transform: none;
+    max-width: calc(100vw - 70px);
+  }
+  .btn-parcel-toggle {
+    padding: 8px 16px;
+    font-size: 13px;
+    border-radius: 20px;
+    gap: 8px;
+  }
+  .toggle-label {
+    font-size: 12px;
+  }
+  .selected-count-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+  .parcel-toggle-icon {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+
+  .parcel-grid {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 4px;
+    padding: 6px;
+    max-width: 85vw;
+  }
+  .parcel-btn {
+    min-width: 32px;
+    height: 28px;
+    font-size: 11px;
+    padding: 0 4px;
+  }
+}
+
+/* Hide empty logo-container if present */
+#logo-container:empty {
+  display: none !important;
+}
+
+/* ==========================================================================
+   The CITADEL Video View Styles (Full-Bleed Edge-to-Edge Cover)
+   ========================================================================== */
+.citadel-video-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100dvh;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000000;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+.video-card-frame {
+  width: 100vw;
+  height: 100dvh;
+  max-width: 100vw;
+  max-height: 100dvh;
+  background: #000000;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.video-player-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100dvh;
+  background: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.citadel-video-element {
+  width: 100vw;
+  height: 100dvh;
+  min-width: 100vw;
+  min-height: 100dvh;
+  object-fit: cover;
+  outline: none;
+  border: none;
+}
+

@@ -23,7 +23,7 @@ def get_web_optimized_image(three60_folder, fname):
 def build_standalone():
     base_image_path = "base.png"
     side_texture_path = "dirt_side_2.avif"
-    svg_path = "jijuck_2.svg"
+    svg_path = "jijuck_5.svg"
     cadastral_data_path = "cadastral_data.json"
     three60_folder = "360_2"
 
@@ -42,25 +42,7 @@ def build_standalone():
         files = sorted(os.listdir(three60_folder))
         for fname in files:
             fname_upper = fname.upper()
-            if fname_upper.endswith(".LRF") or fname_upper.endswith(".MP4"):
-                if fname.endswith("_web.mp4"):
-                    target_v = fname
-                else:
-                    base_n = os.path.splitext(fname)[0]
-                    web_v = f"{base_n}_web.mp4"
-                    if os.path.exists(os.path.join(three60_folder, web_v)):
-                        target_v = web_v
-                    else:
-                        target_v = fname
-                
-                if not any(spot["id"] == "360_video_main" for spot in drone_spots):
-                    drone_spots.append({
-                        "id": "360_video_main",
-                        "type": "video",
-                        "name": "📹 항공 360 비디오",
-                        "filename": f"{three60_folder}/{target_v}"
-                    })
-            elif fname_upper.endswith((".JPG", ".JPEG", ".PNG")):
+            if fname_upper.endswith((".JPG", ".JPEG", ".PNG")) and not fname.endswith("_web.jpg"):
                 web_filename = get_web_optimized_image(three60_folder, fname)
                 drone_spots.append({
                     "id": fname,
@@ -74,8 +56,8 @@ def build_standalone():
 
     logo_html = """
     <div id="logo-container" style="position: absolute; top: 20px; left: 20px; z-index: 1000; pointer-events: auto;">
-        <div style="background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.4); box-shadow: 0 8px 32px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center;">
-            <img src="logo.png" style="max-height: 80px; max-width: 160px; object-fit: contain;">
+        <div style="background: transparent; padding: 2px 4px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center;">
+            <img src="logo.png" style="height: 135px; max-height: 165px; max-width: 340px; width: auto; object-fit: contain; filter: drop-shadow(0px 4px 16px rgba(0,0,0,0.65));">
         </div>
     </div>
     """
