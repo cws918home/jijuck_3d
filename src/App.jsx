@@ -79,9 +79,12 @@ export default function App() {
                 controls
                 autoPlay
                 loop
-                muted
                 playsInline
                 className="citadel-video-element"
+                onEnded={(e) => {
+                  e.target.currentTime = 0;
+                  e.target.play();
+                }}
               >
                 <source src="The_Citadel.mp4" type="video/mp4" />
                 <source src="The_Citadel.mov" type="video/quicktime" />
