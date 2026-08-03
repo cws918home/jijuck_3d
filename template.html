@@ -418,8 +418,8 @@
     
     <div id="canvas-container"></div>
 
-    <!-- 3DGS Viewer iframe (hidden by default) -->
-    <iframe id="threeDgs-iframe" src="model.html" title="3DGS Viewer" style="display:none; position:absolute; top:0; left:0; width:100vw; height:100dvh; border:none; z-index:1;"></iframe>
+    <!-- 3DGS Viewer iframe (hidden by default, loaded lazily on tab click) -->
+    <iframe id="threeDgs-iframe" data-src="model.html" src="about:blank" title="3DGS Viewer" style="display:none; position:absolute; top:0; left:0; width:100vw; height:100dvh; border:none; z-index:1;"></iframe>
     
     <!-- The CITADEL Video container (full-bleed, default visible) -->
     <div id="citadel-video-container" style="display:flex; position:absolute; top:0; left:0; width:100vw; height:100dvh; background:#000000; z-index:10; flex-direction:column; align-items:center; justify-content:center; padding:0; margin:0; overflow:hidden;">
@@ -1140,6 +1140,13 @@
                 tab3dgs.classList.add('active');
                 canvasContainer.style.display = 'none';
                 threeDgsIframe.style.display = 'block';
+                
+                // Lazy-load 3DGS iframe when visible to avoid WebGPU width 0 height 0 initialization error
+                const targetSrc = threeDgsIframe.getAttribute('data-src') || 'model.html';
+                if (!threeDgsIframe.src || threeDgsIframe.src.endsWith('about:blank') || threeDgsIframe.getAttribute('src') === 'about:blank') {
+                    threeDgsIframe.src = targetSrc;
+                }
+
                 if (citadelVideoContainer) citadelVideoContainer.style.display = 'none';
                 camControls.style.display = 'none';
                 spotBar.style.display = 'none';
@@ -1166,6 +1173,17 @@
         document.getElementById('tab-map').addEventListener('click', () => switchTab('map'));
         document.getElementById('tab-vr').addEventListener('click', () => switchTab('vr'));
         document.getElementById('tab-3dgs').addEventListener('click', () => switchTab('3dgs'));
+
+        // Screen click fallback to play video if autoplay was restricted by browser
+        const citadelVidContainer = document.getElementById('citadel-video-container');
+        if (citadelVidContainer) {
+            citadelVidContainer.addEventListener('click', () => {
+                const vid = document.getElementById('citadel-video-element');
+                if (vid && vid.paused) {
+                    vid.play().catch(e => {});
+                }
+            });
+        }
 
         function animate() {
             requestAnimationFrame(animate);
