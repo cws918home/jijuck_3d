@@ -1,405 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Cadastral Map</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap');
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>THE CITADEL 도안 더 퍼스트 | Gated Community</title>
+    <meta name="description" content="대전 유성구 상대동 314-1 일원 34필지 프리미엄 게이티드 커뮤니티 THE CITADEL 도안 더 퍼스트. (주)메디파크">
 
-        html, body { 
-            margin: 0; padding: 0; 
-            overflow: hidden !important; 
-            width: 100vw; height: 100vh;
-            font-family: 'Outfit', sans-serif; 
-            background: linear-gradient(135deg, #1e1e2f 0%, #2a2a40 100%);
-            color: #ffffff;
-            cursor: default; 
-            -ms-overflow-style: none !important;
-            scrollbar-width: none !important;
-        }
-        ::-webkit-scrollbar {
-            display: none !important;
-            width: 0px !important;
-            height: 0px !important;
-        }
-        #canvas-container { width: 100vw; height: 100vh; display: block; position: absolute; top: 0; left: 0; z-index: 1; }
-        #instructions {
-            display: none !important;
-        }
-        .highlight-text { color: #64ffda; font-weight: 600; text-shadow: 0 0 8px rgba(100, 255, 218, 0.4); }
-        #logo-container:empty {
-            display: none !important;
-        }
-        #logo-container {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 100;
-            pointer-events: none;
-        }
-        #logo-container img {
-            height: 135px;
-            max-height: 165px;
-            max-width: 340px;
-            width: auto;
-            object-fit: contain;
-            filter: drop-shadow(0px 4px 16px rgba(0,0,0,0.65));
-        }
-        .building-label, .building-label * {
-            pointer-events: none !important;
-        }
-        .building-label {
-            background: rgba(9, 10, 16, 0.88);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            color: #ffffff;
-            padding: 8px 14px;
-            border-radius: 12px;
-            text-align: center;
-            border: 2px solid rgba(100, 255, 218, 0.5);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.75), 0 0 15px rgba(100, 255, 218, 0.3);
-            white-space: pre-wrap;
-            transition: opacity 0.25s ease;
-        }
-        .building-label .seq {
-            font-weight: 800;
-            font-size: 14px;
-            color: #64ffda;
-            margin-bottom: 3px;
-            text-shadow: 0 0 10px rgba(100, 255, 218, 0.7);
-            letter-spacing: 0.5px;
-        }
-        .building-label .area {
-            font-size: 13px;
-            font-weight: 600;
-            color: #ffffff;
-            white-space: nowrap;
-        }
+    <!-- Fonts: Poppins, Pretendard, Cormorant Garamond, Noto Sans KR -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300&family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
 
-        /* Camera Controls Toolbar */
-        #camera-controls {
-            position: absolute;
-            top: 30px;
-            right: 30px;
-            z-index: 100;
-            display: flex;
-            gap: 10px;
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 10px 14px;
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-        .cam-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            padding: 8px 14px;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 600;
-            font-family: 'Outfit', sans-serif;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(4px);
-        }
-        .cam-btn:hover {
-            background: rgba(100, 255, 218, 0.2);
-            border-color: #64ffda;
-            color: #64ffda;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(100, 255, 218, 0.3);
-        }
-        .cam-btn.active {
-            background: #64ffda;
-            color: #0a0a0f;
-            border-color: #64ffda;
-            box-shadow: 0 0 15px rgba(100, 255, 218, 0.6);
-        }
+    <!-- FontAwesome & Swiper CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
-        /* Main Navigation Tabs */
-        #main-nav {
-            position: absolute;
-            top: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 100;
-            display: flex;
-            gap: 8px;
-            background: rgba(10, 10, 15, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            padding: 6px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-        .nav-tab {
-            background: transparent;
-            border: none;
-            color: #aaaaaa;
-            padding: 10px 22px;
-            border-radius: 14px;
-            font-size: 14px;
-            font-weight: 600;
-            font-family: 'Outfit', sans-serif;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .nav-tab:hover {
-            color: #ffffff;
-            background: rgba(255, 255, 255, 0.08);
-        }
-        .nav-tab.active {
-            background: linear-gradient(135deg, #64ffda 0%, #00b4d8 100%);
-            color: #0a0a0f;
-            box-shadow: 0 4px 20px rgba(100, 255, 218, 0.4);
-            font-weight: 700;
-        }
+    <!-- GSAP & Swiper Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
-        /* VR Spot Selector Bar */
-        #vr-spot-bar {
-            position: absolute;
-            top: 85px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 100;
-            display: none;
-            gap: 10px;
-            background: rgba(10, 10, 15, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 8px 12px;
-            border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-        }
-
-        /* Parcel Buttons Bar (Collapsible Drawer) */
-        #parcel-bar-container {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            max-width: 95vw;
-            pointer-events: auto;
-            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        #btn-parcel-toggle {
-            background: rgba(10, 10, 20, 0.92);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 2px solid rgba(100, 255, 218, 0.5);
-            color: #ffffff;
-            padding: 12px 28px;
-            border-radius: 30px;
-            font-size: 16px;
-            font-weight: 700;
-            font-family: 'Outfit', sans-serif;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6), 0 0 15px rgba(100, 255, 218, 0.25);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        #btn-parcel-toggle:hover {
-            background: rgba(20, 20, 35, 0.98);
-            border-color: #64ffda;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 25px rgba(100, 255, 218, 0.5);
-            transform: translateY(-3px) scale(1.03);
-        }
-        #parcel-toggle-icon {
-            font-size: 14px;
-            color: #64ffda;
-            font-weight: 800;
-            background: rgba(100, 255, 218, 0.15);
-            padding: 4px 10px;
-            border-radius: 12px;
-            border: 1px solid rgba(100, 255, 218, 0.3);
-        }
-        #parcel-bar-body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-            max-height: 500px;
-            opacity: 1;
-            overflow: hidden;
-        }
-        #parcel-bar-container.collapsed #parcel-bar-body {
-            max-height: 0px;
-            opacity: 0;
-            pointer-events: none;
-            margin: 0;
-            padding: 0;
-        }
-        #parcel-bar-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(10, 10, 15, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 5px 14px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-        }
-        #parcel-bar-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: #64ffda;
-        }
-        .parcel-action-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            padding: 4px 10px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 600;
-            font-family: 'Outfit', sans-serif;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .parcel-action-btn:hover {
-            background: rgba(100, 255, 218, 0.2);
-            color: #64ffda;
-            border-color: #64ffda;
-        }
-        #parcel-bar {
-            display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            gap: 5px;
-            background: rgba(10, 10, 15, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            padding: 8px 12px;
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            max-width: 90vw;
-        }
-        .parcel-btn {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #dddddd;
-            min-width: 36px;
-            height: 32px;
-            padding: 0 6px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 600;
-            font-family: 'Outfit', sans-serif;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .parcel-btn:hover {
-            background: rgba(100, 255, 218, 0.2);
-            color: #64ffda;
-            border-color: #64ffda;
-        }
-        .parcel-btn.active {
-            background: linear-gradient(135deg, #64ffda 0%, #00b4d8 100%);
-            color: #0a0a0f;
-            border-color: #64ffda;
-            font-weight: 700;
-            box-shadow: 0 0 10px rgba(100, 255, 218, 0.6);
-        }
-
-        /* Mobile & Tablet Responsive Styles */
-        @media (max-width: 768px) {
-            #logo-container {
-                top: 10px;
-                left: 10px;
-                padding: 4px 6px;
-                border-radius: 10px;
-            }
-            #logo-container img {
-                max-width: 70px;
-                max-height: 35px;
-            }
-
-            #main-nav {
-                top: 10px;
-                padding: 4px;
-                gap: 4px;
-                border-radius: 14px;
-            }
-            .nav-tab {
-                padding: 6px 10px;
-                font-size: 11px;
-                border-radius: 10px;
-            }
-
-            #camera-controls {
-                top: auto;
-                bottom: 10px;
-                left: 50%;
-                right: auto;
-                transform: translateX(-50%);
-                padding: 4px 6px;
-                gap: 4px;
-                border-radius: 12px;
-                width: max-content;
-                max-width: 94vw;
-                overflow-x: auto;
-            }
-            .cam-btn {
-                padding: 5px 8px;
-                font-size: 10px;
-                white-space: nowrap;
-            }
-
-            #vr-spot-bar {
-                top: 52px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 90vw;
-                flex-wrap: wrap;
-                justify-content: center;
-                padding: 6px;
-                gap: 6px;
-            }
-
-            #parcel-bar-container {
-                bottom: 45px;
-                max-width: 98vw;
-                gap: 4px;
-            }
-            #parcel-bar-header {
-                padding: 3px 8px;
-                gap: 6px;
-            }
-            #parcel-bar-title {
-                font-size: 11px;
-            }
-            .parcel-action-btn {
-                padding: 2px 6px;
-                font-size: 10px;
-            }
-            #parcel-bar {
-                grid-template-columns: repeat(6, 1fr);
-                gap: 4px;
-                padding: 6px;
-                max-width: 96vw;
-            }
-        }
-    </style>
-    <!-- Import Three.js -->
+    <!-- Three.js Import Map -->
     <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
     <script type="importmap">
       {
@@ -409,68 +32,1815 @@
         }
       }
     </script>
+
+    <style>
+        :root {
+            --bg-dark: #000000;
+            --bg-light: #ffffff;
+            --bg-sub: #faf9f6;
+            --gold: #766B4A;
+            --gold-bright: #c5a059;
+            --text-dark: #222222;
+            --text-gray: #5a5a5a;
+            --text-light: #ffffff;
+            --border-light: #e5e3dc;
+            --font-main: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            --font-serif: 'Cormorant Garamond', serif;
+            --font-poppins: 'Poppins', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: var(--font-main);
+            color: var(--text-light);
+            background-color: var(--bg-dark);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* ── Custom Scrollbar (Bosque Namsan Style) ── */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(118, 107, 74, 0.6);
+            border-radius: 3px;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+        ul, li {
+            list-style: none;
+        }
+        button {
+            border: none;
+            outline: none;
+            background: none;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           TOP HEADER & NAVIGATION (Bosque Namsan Style)
+        ══════════════════════════════════════════════════════════ */
+        #header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 4rem;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, transparent 100%);
+            transition: all 0.4s ease;
+        }
+
+        #header.scrolled {
+            background: rgba(0, 0, 0, 0.95);
+            height: 68px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-logo img {
+            height: 38px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .header-logo-text {
+            font-family: var(--font-poppins);
+            font-size: 1.35rem;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            color: #ffffff;
+        }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 2.5rem;
+        }
+
+        .header-nav a {
+            font-family: var(--font-poppins);
+            font-size: 0.92rem;
+            font-weight: 300;
+            letter-spacing: 0.08em;
+            color: rgba(255, 255, 255, 0.8);
+            transition: color 0.3s ease;
+            position: relative;
+            padding: 4px 0;
+        }
+
+        .header-nav a:hover, .header-nav a.active {
+            color: #ffffff;
+        }
+
+        .header-nav a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--gold);
+            transition: width 0.3s ease;
+        }
+
+        .header-nav a:hover::after, .header-nav a.active::after {
+            width: 100%;
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           FLOATING MENU TOGGLE & REGISTER BUTTONS (Bosque Signature)
+        ══════════════════════════════════════════════════════════ */
+        #menu-toggle {
+            position: fixed;
+            right: 3.5rem;
+            bottom: 8%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            z-index: 10101;
+            background: #ffffff;
+            border-radius: 50%;
+            width: 65px;
+            height: 65px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        #menu-toggle:hover {
+            transform: scale(1.08);
+            background: #f0ede6;
+        }
+
+        #menu-toggle span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: #000000;
+            transition: all 0.3s ease;
+        }
+
+        #menu-toggle.active span:nth-child(1) {
+            transform: translateY(7px) rotate(45deg);
+        }
+        #menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+        #menu-toggle.active span:nth-child(3) {
+            transform: translateY(-7px) rotate(-45deg);
+        }
+
+        .register-float-btn {
+            position: fixed;
+            right: 3.5rem;
+            bottom: calc(8% + 80px);
+            z-index: 10100;
+            background: var(--gold);
+            color: #ffffff;
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-poppins);
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+            text-align: center;
+            line-height: 1.1;
+        }
+
+        .register-float-btn:hover {
+            transform: scale(1.08);
+            background: #8a7c56;
+            color: #ffffff;
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           FULLSCREEN OVERLAY MENU (Bosque Namsan Style)
+        ══════════════════════════════════════════════════════════ */
+        #overlay-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.96);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            z-index: 10100;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 80px 8vw 40px;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        #overlay-menu.open {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .overlay-menu-list {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            margin-top: 2rem;
+        }
+
+        .overlay-menu-list li {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            line-height: 1.8;
+            transition: 0.3s ease;
+        }
+
+        .overlay-menu-list li::before {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0%;
+            height: 1px;
+            background: #ffffff;
+            transition: width 0.4s ease;
+        }
+
+        .overlay-menu-list li:hover::before {
+            width: 100%;
+        }
+
+        .overlay-menu-list li a {
+            color: #ffffff;
+            font-family: var(--font-poppins);
+            font-size: clamp(2rem, 4.5vw, 4.2rem);
+            font-weight: 200;
+            display: flex;
+            align-items: baseline;
+            gap: 2rem;
+            padding: 1rem 0;
+            letter-spacing: -0.04em;
+            transition: transform 0.3s ease;
+        }
+
+        .overlay-menu-list li a:hover {
+            transform: translateX(16px);
+        }
+
+        .overlay-menu-list li a span {
+            font-size: clamp(1.2rem, 2.2vw, 2rem);
+            color: var(--gold);
+            font-weight: 400;
+            opacity: 0.6;
+        }
+
+        .overlay-menu-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+            font-family: var(--font-main);
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           MAIN VIEWPORT CONTAINER & SUBPAGES
+        ══════════════════════════════════════════════════════════ */
+        .subpage-container {
+            width: 100%;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .subpage-view {
+            display: none;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .subpage-view.active {
+            display: block;
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           SUBPAGE 0: TEASER HERO (Home)
+        ══════════════════════════════════════════════════════════ */
+        #view-home {
+            position: relative;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .home-video-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            filter: brightness(0.7);
+            z-index: 1;
+        }
+
+        .home-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 2;
+        }
+
+        .home-content {
+            position: relative;
+            z-index: 3;
+            max-width: 900px;
+            padding: 0 20px;
+        }
+
+        .home-sub-title {
+            font-family: var(--font-poppins);
+            font-size: 1.1rem;
+            font-weight: 300;
+            letter-spacing: 0.25em;
+            color: var(--gold-bright);
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+        }
+
+        .home-main-title {
+            font-family: var(--font-poppins);
+            font-size: clamp(3rem, 7vw, 6.5rem);
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            line-height: 1.05;
+            color: #ffffff;
+            margin-bottom: 2rem;
+            text-shadow: 0 4px 30px rgba(0, 0, 0, 0.8);
+        }
+
+        .home-desc-text {
+            font-size: 1.2rem;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.8;
+            margin-bottom: 3rem;
+            word-break: keep-all;
+        }
+
+        .home-cta-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-home-cta {
+            background: #ffffff;
+            color: #000000;
+            padding: 16px 36px;
+            border-radius: 30px;
+            font-family: var(--font-poppins);
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            transition: all 0.3s ease;
+        }
+
+        .btn-home-cta:hover {
+            background: var(--gold);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .btn-home-outline {
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: #ffffff;
+            padding: 16px 36px;
+            border-radius: 30px;
+            font-family: var(--font-poppins);
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .btn-home-outline:hover {
+            border-color: #ffffff;
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           SUBPAGE 1: PROJECT OVERVIEW (Exact Layout of sub.php?code=8)
+        ══════════════════════════════════════════════════════════ */
+        .overview-page-wrapper {
+            background: #ffffff;
+            color: var(--text-dark);
+            min-height: 100vh;
+            padding: 140px 0 100px;
+        }
+
+        .overview-inner {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 0 4rem;
+        }
+
+        .overview-top-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 60px;
+            margin-bottom: 60px;
+        }
+
+        .overview-txt-box {
+            display: flex;
+            gap: 50px;
+            flex: 1.2;
+        }
+
+        .overview-main-heading {
+            font-family: var(--font-poppins);
+            font-size: clamp(2.8rem, 4vw, 4.2rem);
+            font-weight: 600;
+            line-height: 1.1;
+            color: #000000;
+            letter-spacing: -0.04em;
+            min-width: 220px;
+        }
+
+        .overview-left-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .overview-left-list li {
+            display: flex;
+            font-size: 1.05rem;
+            font-weight: 300;
+            color: var(--text-gray);
+            line-height: 1.6;
+        }
+
+        .overview-left-list li b {
+            width: 100px;
+            font-weight: 700;
+            color: var(--gold);
+            flex-shrink: 0;
+        }
+
+        .overview-left-list li span {
+            color: var(--text-gray);
+        }
+
+        /* Overview Table Basic */
+        .overview-table-basic {
+            flex: 0.9;
+            background: #fbfaf7;
+            border: 1px solid var(--border-light);
+            border-radius: 4px;
+            padding: 24px;
+        }
+
+        .overview-table-basic table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .overview-table-basic th, .overview-table-basic td {
+            padding: 14px 16px;
+            font-size: 0.95rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .overview-table-basic tr:last-child th,
+        .overview-table-basic tr:last-child td {
+            border-bottom: none;
+        }
+
+        .overview-table-basic th {
+            color: var(--gold);
+            font-weight: 700;
+            font-family: var(--font-poppins);
+        }
+
+        .overview-table-basic td {
+            color: var(--text-gray);
+            font-weight: 400;
+        }
+
+        /* Overview Swiper Gallery */
+        .overview-slide-container {
+            width: 100%;
+            margin: 40px 0 60px;
+            padding-bottom: 40px;
+        }
+
+        .overview-slide-container .swiper-slide {
+            height: 380px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .overview-slide-container .swiper-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .overview-slide-container .swiper-slide:hover img {
+            transform: scale(1.04);
+        }
+
+        .swiper-scrollbar-drag {
+            background: #000000 !important;
+            border-radius: 0 !important;
+        }
+
+        /* Bottom Narrative Quote */
+        .overview-bottom-wrapper {
+            text-align: center;
+            padding: 60px 0 30px;
+        }
+
+        .overview-bottom-desc {
+            font-size: 1.15rem;
+            color: #373737;
+            font-weight: 400;
+            line-height: 1.9;
+            max-width: 800px;
+            margin: 0 auto;
+            word-break: keep-all;
+        }
+
+        .reveal-line-vertical {
+            margin: 40px auto;
+            width: 1px;
+            height: 180px;
+            background: #cdcbc1;
+            transform: scaleY(1);
+            transform-origin: top;
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           SUBPAGE 2: 3D INTERACTIVE SUITE (Flawless Fullscreen View)
+        ══════════════════════════════════════════════════════════ */
+        #view-3d {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: #000000;
+            overflow: hidden;
+        }
+
+        /* 3D Top Floating Tabs Bar */
+        .suite-tabs-bar {
+            position: absolute;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(18, 20, 26, 0.9);
+            backdrop-filter: blur(16px);
+            padding: 6px 10px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            max-width: 95vw;
+            overflow-x: auto;
+        }
+
+        .suite-tab {
+            padding: 9px 20px;
+            border-radius: 20px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.7);
+            white-space: nowrap;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .suite-tab:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .suite-tab.active {
+            background: #ffffff;
+            color: #000000;
+            font-weight: 700;
+        }
+
+        /* Video Container View */
+        #citadel-video-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000000;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #citadel-video-element {
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+        }
+
+        /* Three.js Canvas Container */
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 5;
+            display: none;
+        }
+
+        /* 3DGS iframe */
+        #threeDgs-iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            border: none;
+            z-index: 6;
+            display: none;
+        }
+
+        /* Camera Controls */
+        #camera-controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 80;
+            display: none;
+            gap: 8px;
+            background: rgba(18, 20, 26, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 6px 12px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .cam-btn {
+            background: rgba(255, 255, 255, 0.06);
+            color: #ffffff;
+            padding: 7px 15px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .cam-btn:hover {
+            background: #ffffff;
+            color: #000000;
+        }
+
+        /* 360 Drone VR Spots Bar */
+        #vr-spot-bar {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 80;
+            display: none;
+            gap: 10px;
+            background: rgba(18, 20, 26, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 6px 14px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .spot-btn {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            padding: 7px 16px;
+            border-radius: 20px;
+            font-size: 0.84rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .spot-btn.active, .spot-btn:hover {
+            background: #ffffff;
+            color: #000000;
+            font-weight: 700;
+        }
+
+        /* Parcel Bar Container */
+        #parcel-bar-container {
+            position: absolute;
+            bottom: 85px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 85;
+            display: none;
+            flex-direction: column;
+            background: rgba(15, 17, 23, 0.92);
+            backdrop-filter: blur(16px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 10px 14px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            max-width: 96vw;
+            width: 760px;
+        }
+
+        #parcel-bar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        #parcel-bar-title {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--gold-bright);
+        }
+
+        .parcel-action-btn {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 3px 8px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.06);
+            margin-left: 6px;
+        }
+
+        .parcel-action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        #parcel-bar {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 4px;
+        }
+
+        .parcel-pill {
+            padding: 5px 0;
+            text-align: center;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .parcel-pill.active {
+            background: var(--gold-bright);
+            color: #000000;
+            font-weight: 700;
+            border-color: var(--gold-bright);
+        }
+
+        /* 3D Label */
+        .building-label {
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid #766B4A;
+            color: #ffffff;
+            padding: 3px 7px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.7);
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .building-label .seq {
+            color: #dfbe7e;
+            font-weight: 700;
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           SUBPAGE 3: BRAND PHILOSOPHY
+        ══════════════════════════════════════════════════════════ */
+        .brand-page-wrapper {
+            background: #ffffff;
+            color: var(--text-dark);
+            min-height: 100vh;
+            padding: 140px 0 100px;
+        }
+
+        .brand-grid-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .brand-heading-large {
+            font-family: var(--font-poppins);
+            font-size: clamp(2.5rem, 4.5vw, 4rem);
+            font-weight: 600;
+            line-height: 1.15;
+            color: #000000;
+            margin-bottom: 2rem;
+        }
+
+        .brand-quote-text {
+            font-family: var(--font-serif);
+            font-size: 1.5rem;
+            font-style: italic;
+            color: var(--gold);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            border-left: 2px solid var(--gold);
+            padding-left: 20px;
+        }
+
+        .brand-body-text {
+            color: var(--text-gray);
+            font-size: 1.05rem;
+            line-height: 1.85;
+            margin-bottom: 1.5rem;
+            word-break: keep-all;
+        }
+
+        .brand-feature-card {
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .brand-feature-card img {
+            width: 100%;
+            height: 480px;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           SUBPAGE 4: PRIME LOCALE & DISTANCE
+        ══════════════════════════════════════════════════════════ */
+        .locale-page-wrapper {
+            background: #faf9f6;
+            color: var(--text-dark);
+            min-height: 100vh;
+            padding: 140px 0 100px;
+        }
+
+        .locale-grid-box {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .locale-list-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .locale-card-item {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            padding: 24px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .locale-card-item:hover {
+            border-color: var(--gold);
+            transform: translateX(6px);
+        }
+
+        .locale-card-item h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #000000;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .locale-card-item h4 i {
+            color: var(--gold);
+        }
+
+        .locale-card-item p {
+            font-size: 0.95rem;
+            color: var(--text-gray);
+            line-height: 1.6;
+        }
+
+        /* Distance Infographic */
+        .distance-card-wrap {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 4px;
+            padding: 36px;
+        }
+
+        .dist-row-item {
+            display: grid;
+            grid-template-columns: 180px 1fr 80px;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .dist-target-title {
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: #222;
+        }
+
+        .dist-bar-track {
+            height: 6px;
+            background: #eee;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .dist-bar-fill {
+            height: 100%;
+            background: var(--gold);
+            border-radius: 3px;
+        }
+
+        .dist-bar-fill.walk {
+            background: #4cd964;
+        }
+
+        .dist-val-text {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-align: right;
+            color: var(--gold);
+        }
+
+        .dist-val-text.walk {
+            color: #2e7d32;
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           SUBPAGE 5: RESIDENCE & CLUBHOUSE
+        ══════════════════════════════════════════════════════ */
+        .residence-page-wrapper {
+            background: #ffffff;
+            color: var(--text-dark);
+            min-height: 100vh;
+            padding: 140px 0 100px;
+        }
+
+        .res-grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .res-type-card {
+            border: 1px solid var(--border-light);
+            border-radius: 4px;
+            padding: 40px;
+            background: #fbfaf7;
+        }
+
+        .res-type-card h3 {
+            font-family: var(--font-poppins);
+            font-size: 1.8rem;
+            color: #000;
+            margin-bottom: 4px;
+        }
+
+        .res-type-card .type-sub {
+            font-size: 0.85rem;
+            color: var(--gold);
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .res-type-card .count-num {
+            font-family: var(--font-poppins);
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--gold);
+            line-height: 1;
+            margin-bottom: 24px;
+        }
+
+        .res-type-card ul li {
+            font-size: 0.95rem;
+            color: var(--text-gray);
+            padding: 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .res-type-card ul li i {
+            color: var(--gold);
+            font-size: 0.8rem;
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           SUBPAGE 6: GALLERY
+        ══════════════════════════════════════════════════════ */
+        .gallery-page-wrapper {
+            background: #000000;
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 140px 0 100px;
+        }
+
+        .gallery-grid-box {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+        }
+
+        .gallery-card {
+            position: relative;
+            height: 420px;
+            border-radius: 4px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .gallery-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .gallery-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .gallery-card-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 30px;
+            background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);
+        }
+
+        .gallery-card-caption h4 {
+            font-family: var(--font-poppins);
+            font-size: 1.3rem;
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           SUBPAGE 7: REGISTER YOUR INTEREST (VIP Consultation)
+        ══════════════════════════════════════════════════════════ */
+        .register-page-wrapper {
+            background: #ffffff;
+            color: var(--text-dark);
+            min-height: 100vh;
+            padding: 140px 0 100px;
+        }
+
+        .register-grid-box {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 60px;
+        }
+
+        .register-info-box {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .contact-card-item {
+            background: #fbfaf7;
+            border: 1px solid var(--border-light);
+            padding: 32px;
+            border-radius: 4px;
+        }
+
+        .contact-phone-big {
+            font-family: var(--font-poppins);
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gold);
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .register-form-wrap {
+            background: #fbfaf7;
+            border: 1px solid var(--border-light);
+            padding: 40px;
+            border-radius: 4px;
+        }
+
+        .form-field-group {
+            margin-bottom: 20px;
+        }
+
+        .form-field-group label {
+            display: block;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 4px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border 0.3s ease;
+        }
+
+        .form-input:focus {
+            border-color: var(--gold);
+        }
+
+        .btn-register-submit {
+            width: 100%;
+            background: #000000;
+            color: #ffffff;
+            padding: 18px;
+            font-family: var(--font-poppins);
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            border-radius: 4px;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-register-submit:hover {
+            background: var(--gold);
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           FOOTER (Bosque Namsan Style)
+        ══════════════════════════════════════════════════════════ */
+        .site-footer {
+            background: #000000;
+            color: rgba(255, 255, 255, 0.6);
+            padding: 60px 0 40px;
+            font-size: 0.85rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-inner {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 0 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .footer-info-text {
+            line-height: 1.8;
+        }
+
+        .footer-copyright {
+            width: 100%;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            margin-top: 30px;
+            padding-top: 24px;
+            font-size: 0.78rem;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           RESPONSIVE BREAKPOINTS
+        ══════════════════════════════════════════════════════════ */
+        @media (max-width: 1024px) {
+            #header { padding: 0 2rem; }
+            .header-nav { display: none; }
+            .overview-inner, .footer-inner { padding: 0 2rem; }
+            .overview-top-wrapper, .brand-grid-box, .locale-grid-box, .res-grid-container, .gallery-grid-box, .register-grid-box {
+                grid-template-columns: 1fr;
+                flex-direction: column;
+                gap: 40px;
+            }
+            .overview-txt-box { flex-direction: column; gap: 20px; }
+            #parcel-bar { grid-template-columns: repeat(8, 1fr); }
+            #menu-toggle { right: 2rem; }
+            .register-float-btn { right: 2rem; }
+        }
+
+        @media (max-width: 640px) {
+            .overview-main-heading { font-size: 2.2rem; }
+            #parcel-bar { grid-template-columns: repeat(6, 1fr); }
+            .dist-row-item { grid-template-columns: 130px 1fr 60px; font-size: 0.85rem; }
+        }
+    </style>
 </head>
 <body>
-    <div id="logo-container">
-        <!-- Logo will be injected here if available -->
-        {{LOGO_HTML}}
-    </div>
-    
-    <div id="canvas-container"></div>
 
-    <!-- 3DGS Viewer iframe (hidden by default, loaded lazily on tab click) -->
-    <iframe id="threeDgs-iframe" data-src="model.html" src="about:blank" title="3DGS Viewer" style="display:none; position:absolute; top:0; left:0; width:100vw; height:100dvh; border:none; z-index:1;"></iframe>
-    
-    <!-- The CITADEL Video container (full-bleed, default visible) -->
-    <div id="citadel-video-container" style="display:flex; position:absolute; top:0; left:0; width:100vw; height:100dvh; background:#000000; z-index:10; flex-direction:column; align-items:center; justify-content:center; padding:0; margin:0; overflow:hidden;">
-        <div style="width:100vw; height:100dvh; max-width:100vw; max-height:100dvh; background:#000000; display:flex; flex-direction:column; overflow:hidden;">
-            <div style="position:absolute; top:0; left:0; width:100vw; height:100dvh; background:#000; display:flex; align-items:center; justify-content:center; overflow:hidden;">
-                <video id="citadel-video-element" controls autoplay loop muted playsinline style="width:100vw; height:100dvh; min-width:100vw; min-height:100dvh; object-fit:cover; outline:none; border:none;">
-                    <source src="The_Citadel.mp4" type="video/mp4" />
-                    <source src="The_Citadel.mov" type="video/quicktime" />
-                </video>
-            </div>
+    <!-- ═══════════════════════════════════════════ HEADER ═══ -->
+    <header id="header">
+        <a href="#home" class="header-logo" onclick="navigateTo('home')">
+            <span class="header-logo-text">THE CITADEL</span>
+        </a>
+
+        <nav class="header-nav">
+            <a href="#brand" class="nav-btn" data-target="brand" onclick="navigateTo('brand')">Brand</a>
+            <a href="#locale" class="nav-btn" data-target="locale" onclick="navigateTo('locale')">Prime Locale</a>
+            <a href="#3d" class="nav-btn" data-target="3d" onclick="navigateTo('3d')">3D Experience</a>
+            <a href="#overview" class="nav-btn" data-target="overview" onclick="navigateTo('overview')">Project Overview</a>
+            <a href="#residence" class="nav-btn" data-target="residence" onclick="navigateTo('residence')">Residence</a>
+            <a href="#gallery" class="nav-btn" data-target="gallery" onclick="navigateTo('gallery')">Gallery</a>
+            <a href="#register" class="nav-btn" data-target="register" onclick="navigateTo('register')">Register</a>
+        </nav>
+    </header>
+
+    <!-- ═══════════════════════════════════════════ FLOATING BUTTONS ═══ -->
+    <a href="#register" class="register-float-btn" onclick="navigateTo('register')">
+        VIP<br>예약
+    </a>
+
+    <button id="menu-toggle" aria-label="전체메뉴">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- ═══════════════════════════════════════════ FULLSCREEN OVERLAY MENU ═══ -->
+    <div id="overlay-menu">
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <span style="font-family: var(--font-poppins); font-size: 1.5rem; letter-spacing: 0.15em;">THE CITADEL</span>
+        </div>
+
+        <ul class="overlay-menu-list">
+            <li><a href="#brand" onclick="navigateTo('brand')"><span>01</span> Brand Identity</a></li>
+            <li><a href="#locale" onclick="navigateTo('locale')"><span>02</span> Prime Locale</a></li>
+            <li><a href="#3d" onclick="navigateTo('3d')"><span>03</span> 3D Experience (지적도 · VR · 3DGS · 영상)</a></li>
+            <li><a href="#overview" onclick="navigateTo('overview')"><span>04</span> Project Overview</a></li>
+            <li><a href="#residence" onclick="navigateTo('residence')"><span>05</span> Residence & Clubhouse</a></li>
+            <li><a href="#gallery" onclick="navigateTo('gallery')"><span>06</span> Gallery</a></li>
+            <li><a href="#register" onclick="navigateTo('register')"><span>07</span> Register Your Interest</a></li>
+        </ul>
+
+        <div class="overlay-menu-footer">
+            <span>ⓒ 2026 THE CITADEL · Medipark Co., Ltd.</span>
+            <span><i class="fas fa-phone-alt"></i> 010-8940-8280</span>
         </div>
     </div>
 
-    <!-- Main Top Navigation Tabs -->
-    <div id="main-nav">
-        <button class="nav-tab active" id="tab-video">🎬 The CITADEL 소개 영상</button>
-        <button class="nav-tab" id="tab-map">🗺️ 3D 지적도 뷰</button>
-        <button class="nav-tab" id="tab-vr">🚁 360° 항공 VR 뷰</button>
-        <button class="nav-tab" id="tab-3dgs">✨ 3DGS</button>
-    </div>
+    <!-- ═══════════════════════════════════════════ SUBPAGES CONTAINER ═══ -->
+    <div class="subpage-container">
 
-    <div id="camera-controls" style="display:none;">
-        <button class="cam-btn" id="btn-overview">🌐 전체보기</button>
-        <button class="cam-btn" id="btn-front">📐 정면 뷰</button>
-        <button class="cam-btn" id="btn-drone">🚁 드론 뷰</button>
-        <button class="cam-btn" id="btn-rotate">🔄 360° 회전</button>
-    </div>
+        <!-- ── SUBPAGE 0: HOME / TEASER HERO ── -->
+        <div id="view-home" class="subpage-view active">
+            <video class="home-video-bg" autoplay loop muted playsinline>
+                <source src="The_Citadel_last.mp4" type="video/mp4">
+                <source src="public/The_Citadel_last.mp4" type="video/mp4">
+            </video>
+            <div class="home-overlay"></div>
 
-
-
-    <div id="vr-spot-bar"></div>
-
-    <!-- Parcel Toggle Buttons Bar (Collapsible Drawer, hidden by default unless map mode) -->
-    <div id="parcel-bar-container" class="collapsed" style="display:none;">
-        <button id="btn-parcel-toggle">
-            <span>🏷️ 필지 목록 (1번 ~ 31번)</span>
-            <span id="parcel-toggle-icon">▲ 목록 펼치기</span>
-        </button>
-        <div id="parcel-bar-body">
-            <div id="parcel-bar-header">
-                <button class="parcel-action-btn" id="btn-parcel-all">⚡ 전체 솟아오르기</button>
-                <button class="parcel-action-btn" id="btn-parcel-reset">🔄 전체 평평하게</button>
+            <div class="home-content">
+                <p class="home-sub-title">Highend Gated Community · 34 Lots</p>
+                <h1 class="home-main-title">THE CITADEL</h1>
+                <p class="home-desc-text">
+                    자연의 이로움을 건축의 새로움으로, 삶의 경이로움으로.<br>
+                    대전 도안신도시의 중심에서 완성하는 34필지 프라이빗 게이티드 라이프스타일.
+                </p>
+                <div class="home-cta-box">
+                    <button class="btn-home-cta" onclick="navigateTo('3d')">
+                        <i class="fas fa-cube"></i> 3D 인터랙티브 체험
+                    </button>
+                    <button class="btn-home-outline" onclick="navigateTo('overview')">
+                        Project Overview
+                    </button>
+                </div>
             </div>
-            <div id="parcel-bar"></div>
         </div>
+
+        <!-- ── SUBPAGE 1: PROJECT OVERVIEW (sub.php?code=8 Layout) ── -->
+        <div id="view-overview" class="subpage-view">
+            <div class="overview-page-wrapper">
+                <div class="overview-inner">
+                    <div class="overview-top-wrapper">
+                        <div class="overview-txt-box">
+                            <h2 class="overview-main-heading">
+                                Project<br>Overview
+                            </h2>
+                            <ul class="overview-left-list">
+                                <li><b>대지위치</b><span>대전광역시 유성구 상대동 314-1번지 일원 (상대서로 15 일원)</span></li>
+                                <li><b>대지면적</b><span>총 19,135.00㎡ (약 5,788평)</span></li>
+                                <li><b>지역지구</b><span>도시지역, 제2종일반주거지역, 지구단위계획구역</span></li>
+                                <li><b>규모</b><span>총 34필지 (블럭형 31필지 + 획지형 3필지) + 3층 클럽하우스</span></li>
+                                <li><b>건폐율</b><span>60% 이하 (여유로운 단독주택 설계)</span></li>
+                                <li><b>용적률</b><span>기준 120% / 허용 150% 이하</span></li>
+                                <li><b>사업시행</b><span>주식회사 메디파크 (Medipark Co., Ltd.)</span></li>
+                                <li><b>자금관리</b><span>대한토지신탁 주식회사</span></li>
+                                <li><b>분양관리</b><span>주식회사 성지도시개발</span></li>
+                                <li><b>인허가현황</b><span>입안요건 충족 완료 · 도시개발구역 제안 접수 완료</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="overview-table-basic">
+                            <table>
+                                <colgroup>
+                                    <col width="30%">
+                                    <col width="30%">
+                                    <col width="40%">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th>구분</th>
+                                        <th>필지수</th>
+                                        <th>대지면적 / 특징</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th>블럭형</th>
+                                        <td>31필지</td>
+                                        <td>약 93평 ~ 103평 (3,734평 규모)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>획지형</th>
+                                        <td>3필지</td>
+                                        <td>약 74평 (349평 규모)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Clubhouse</th>
+                                        <td>1동 (3층)</td>
+                                        <td>라운지, 파티룸, 스카이캠핑, 게스트하우스</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Slide Carousel -->
+                    <div class="swiper overview-slide-container">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide">
+                                <img src="images/concept-house4.jpg" alt="컨셉하우스 전경" onerror="this.src='public/images/concept-house4.jpg'">
+                            </div>
+                            <div class="swiper-slide">
+                                <img src="images/clubhouse1.png" alt="클럽하우스 전경" onerror="this.src='public/images/clubhouse1.png'">
+                            </div>
+                            <div class="swiper-slide">
+                                <img src="images/concept-house3.jpg" alt="컨셉하우스 측면" onerror="this.src='public/images/concept-house3.jpg'">
+                            </div>
+                            <div class="swiper-slide">
+                                <img src="images/clubhouse2.jpg" alt="클럽하우스 봄전경" onerror="this.src='public/images/clubhouse2.jpg'">
+                            </div>
+                        </div>
+                        <div class="swiper-scrollbar"></div>
+                    </div>
+
+                    <!-- Bottom Narrative -->
+                    <div class="overview-bottom-wrapper">
+                        <p class="overview-bottom-desc">
+                            THE CITADEL(더 시타델) 도안 더 퍼스트에서는 도안의 도심 인프라와 숲세권 자연의 조화가 선명하게 펼쳐집니다.<br>
+                            건폐율 60%의 여유로운 설계와 34필지만을 위한 프라이빗 게이티드 시스템으로,<br>
+                            도심 한가운데서도 최고의 품격과 안전을 가장 가까이에서 마주하는 특별한 공간입니다.
+                        </p>
+                        <div class="reveal-line-vertical"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── SUBPAGE 2: 3D INTERACTIVE SUITE (Flawless View) ── -->
+        <div id="view-3d" class="subpage-view">
+            <!-- Top Tabs Bar -->
+            <div class="suite-tabs-bar">
+                <button class="suite-tab active" id="tab-video" onclick="switchSuiteTab('video')">
+                    <i class="fas fa-play-circle"></i> The CITADEL 영상
+                </button>
+                <button class="suite-tab" id="tab-map" onclick="switchSuiteTab('map')">
+                    <i class="fas fa-map"></i> 3D 지적도 뷰
+                </button>
+                <button class="suite-tab" id="tab-vr" onclick="switchSuiteTab('vr')">
+                    <i class="fas fa-vr-cardboard"></i> 360° 항공 VR
+                </button>
+                <button class="suite-tab" id="tab-3dgs" onclick="switchSuiteTab('3dgs')">
+                    <i class="fas fa-cube"></i> 3DGS 뷰어
+                </button>
+            </div>
+
+            <!-- 1. YouTube High Quality Video Container -->
+            <div id="citadel-video-container">
+                <iframe id="citadel-youtube-iframe"
+                    src="https://www.youtube.com/embed/LBsWlokWV_I?autoplay=1&mute=0&loop=1&playlist=LBsWlokWV_I&rel=0&modestbranding=1&enablejsapi=1"
+                    title="THE CITADEL YouTube Video"
+                    style="width: 100vw; height: 100vh; border: none; outline: none;"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowfullscreen>
+                </iframe>
+            </div>
+
+            <!-- 2. Three.js Canvas Container -->
+            <div id="canvas-container"></div>
+
+            <!-- 3. 3DGS Viewer iframe (Lazy loaded) -->
+            <iframe id="threeDgs-iframe" data-src="model.html" src="about:blank" title="3DGS Viewer"></iframe>
+
+            <!-- Camera Controls (Map Mode) -->
+            <div id="camera-controls">
+                <button class="cam-btn" id="btn-overview"><i class="fas fa-globe"></i> 전체보기</button>
+                <button class="cam-btn" id="btn-front"><i class="fas fa-eye"></i> 정면 뷰</button>
+                <button class="cam-btn" id="btn-drone"><i class="fas fa-plane"></i> 드론 뷰</button>
+                <button class="cam-btn" id="btn-rotate"><i class="fas fa-sync-alt"></i> 360° 회전</button>
+            </div>
+
+            <!-- VR Spot Bar -->
+            <div id="vr-spot-bar"></div>
+
+            <!-- Parcel Elevation Drawer (Map Mode) -->
+            <div id="parcel-bar-container">
+                <div id="parcel-bar-header">
+                    <span id="parcel-bar-title"><i class="fas fa-layer-group"></i> 필지 입체 솟아오르기 (1번 ~ 31번)</span>
+                    <div>
+                        <button class="parcel-action-btn" id="btn-parcel-all">전체 올리기</button>
+                        <button class="parcel-action-btn" id="btn-parcel-reset">전체 내리기</button>
+                    </div>
+                </div>
+                <div id="parcel-bar"></div>
+            </div>
+        </div>
+
+        <!-- ── SUBPAGE 3: BRAND PHILOSOPHY ── -->
+        <div id="view-brand" class="subpage-view">
+            <div class="brand-page-wrapper">
+                <div class="overview-inner">
+                    <div class="brand-grid-box">
+                        <div>
+                            <span style="color: var(--gold); font-family: var(--font-poppins); font-size: 0.9rem; letter-spacing: 0.15em; font-weight: 600;">BRAND PHILOSOPHY</span>
+                            <h2 class="brand-heading-large">삶의 격을 완성하는<br>단 하나의 요새</h2>
+                            <div class="brand-quote-text">
+                                "도시의 편리함과 대자연의 고요가 완벽히 어우러진 34필지만의 독립된 영지"
+                            </div>
+                            <p class="brand-body-text">
+                                THE CITADEL(더 시타델) 도안 더 퍼스트는 대전 도안신도시 최고의 입지에 조성되는 프리미엄 게이티드 커뮤니티입니다. 엄격한 24시간 보안 시스템과 독립된 사생활 보호 설계로 외부의 간섭 없이 온전한 휴식과 안식을 제공합니다.
+                            </p>
+                            <p class="brand-body-text">
+                                건폐율 60%, 허용 용적률 150%의 여유로운 건축 기준을 적용하여 정원, 테라스, 루프탑 등 입주자의 라이프스타일에 맞춘 자유로운 하이엔드 건축이 가능합니다.
+                            </p>
+                        </div>
+                        <div class="brand-feature-card">
+                            <img src="images/concept-house4.jpg" alt="THE CITADEL House" onerror="this.src='public/images/concept-house4.jpg'">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── SUBPAGE 4: PRIME LOCALE ── -->
+        <div id="view-locale" class="subpage-view">
+            <div class="locale-page-wrapper">
+                <div class="overview-inner">
+                    <div style="margin-bottom: 50px;">
+                        <span style="color: var(--gold); font-family: var(--font-poppins); font-size: 0.9rem; letter-spacing: 0.15em; font-weight: 600;">PRIME LOCALE</span>
+                        <h2 class="brand-heading-large">도안신도시의 최중심,<br>완벽한 인프라와 연결되다</h2>
+                    </div>
+
+                    <div class="locale-grid-box">
+                        <div class="locale-list-cards">
+                            <div class="locale-card-item">
+                                <h4><i class="fas fa-city"></i> 트리풀시티 9단지 직접 인접</h4>
+                                <p>도안신도시 최고 선호도 주거단지인 트리풀시티 9단지와 인접하여 완성된 상권 및 생활 편의시설을 도보권에서 누립니다.</p>
+                            </div>
+                            <div class="locale-card-item">
+                                <h4><i class="fas fa-graduation-cap"></i> 대전상원초등학교 도보 3분</h4>
+                                <p>초등학교 안심 도보 통학권 및 도안신도시 명문 학원가, 카이스트(KAIST), 충남대학교 명품 학군 인접.</p>
+                            </div>
+                            <div class="locale-card-item">
+                                <h4><i class="fas fa-hospital"></i> 4대 대학병원급 의료 네트워크</h4>
+                                <p>건양대학교병원(차량 9분), 을지대학교병원(12분), 유성선병원(14분), 충남대학교병원(19분) 완비.</p>
+                            </div>
+                        </div>
+
+                        <!-- Distance Infographic -->
+                        <div class="distance-card-wrap">
+                            <h3 style="font-family: var(--font-poppins); font-size: 1.3rem; margin-bottom: 24px; color: #000;">주요 거점 접근성</h3>
+                            <div class="dist-row-item">
+                                <span class="dist-target-title">대전상원초등학교</span>
+                                <div class="dist-bar-track"><div class="dist-bar-fill walk" style="width: 15%;"></div></div>
+                                <span class="dist-val-text walk">도보 3분</span>
+                            </div>
+                            <div class="dist-row-item">
+                                <span class="dist-target-title">트리풀시티 9단지</span>
+                                <div class="dist-bar-track"><div class="dist-bar-fill walk" style="width: 20%;"></div></div>
+                                <span class="dist-val-text walk">도보 4분</span>
+                            </div>
+                            <div class="dist-row-item">
+                                <span class="dist-target-title">건양대학교병원</span>
+                                <div class="dist-bar-track"><div class="dist-bar-fill" style="width: 32%;"></div></div>
+                                <span class="dist-val-text">차량 9분</span>
+                            </div>
+                            <div class="dist-row-item">
+                                <span class="dist-target-title">카이스트 (KAIST)</span>
+                                <div class="dist-bar-track"><div class="dist-bar-fill" style="width: 35%;"></div></div>
+                                <span class="dist-val-text">차량 10분</span>
+                            </div>
+                            <div class="dist-row-item">
+                                <span class="dist-target-title">유성IC</span>
+                                <div class="dist-bar-track"><div class="dist-bar-fill" style="width: 35%;"></div></div>
+                                <span class="dist-val-text">차량 10분</span>
+                            </div>
+                            <div class="dist-row-item">
+                                <span class="dist-target-title">대전역 (KTX/SRT)</span>
+                                <div class="dist-bar-track"><div class="dist-bar-fill" style="width: 72%;"></div></div>
+                                <span class="dist-val-text">차량 22분</span>
+                            </div>
+                            <div class="dist-row-item">
+                                <span class="dist-target-title">정부세종청사</span>
+                                <div class="dist-bar-track"><div class="dist-bar-fill" style="width: 95%;"></div></div>
+                                <span class="dist-val-text">차량 30분</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── SUBPAGE 5: RESIDENCE & CLUBHOUSE ── -->
+        <div id="view-residence" class="subpage-view">
+            <div class="residence-page-wrapper">
+                <div class="overview-inner">
+                    <div style="margin-bottom: 50px;">
+                        <span style="color: var(--gold); font-family: var(--font-poppins); font-size: 0.9rem; letter-spacing: 0.15em; font-weight: 600;">RESIDENCE & CLUBHOUSE</span>
+                        <h2 class="brand-heading-large">세대 구성 및 3층 규모 클럽하우스</h2>
+                    </div>
+
+                    <div class="res-grid-container">
+                        <div class="res-type-card">
+                            <h3>블럭형 단독주택</h3>
+                            <span class="type-sub">BLOCK TYPE · 3,734평</span>
+                            <div class="count-num">31<span style="font-size: 1.2rem; color: #5a5a5a; font-weight: 400;"> 필지</span></div>
+                            <ul>
+                                <li><i class="fas fa-check"></i> 필지당 약 93평 ~ 103평 규모</li>
+                                <li><i class="fas fa-check"></i> 6m 내부 순환도로 접면</li>
+                                <li><i class="fas fa-check"></i> 프라이빗 정원 및 마당 확보</li>
+                                <li><i class="fas fa-check"></i> 게이티드 보안 커뮤니티 공유</li>
+                            </ul>
+                        </div>
+
+                        <div class="res-type-card">
+                            <h3>획지형 단독주택</h3>
+                            <span class="type-sub">PLOT TYPE · 349평</span>
+                            <div class="count-num">3<span style="font-size: 1.2rem; color: #5a5a5a; font-weight: 400;"> 필지</span></div>
+                            <ul>
+                                <li><i class="fas fa-check"></i> 필지당 약 74평 규모 독립 필지</li>
+                                <li><i class="fas fa-check"></i> 12m 간선도로 접면 및 완충녹지 인접</li>
+                                <li><i class="fas fa-check"></i> 최고 수준의 프라이버시 및 자유설계</li>
+                                <li><i class="fas fa-check"></i> 높은 희소가치의 대형 럭셔리 필지</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 3-Story Clubhouse -->
+                    <div style="background: #fbfaf7; border: 1px solid var(--border-light); border-radius: 4px; padding: 40px;">
+                        <h3 style="font-family: var(--font-poppins); font-size: 1.6rem; margin-bottom: 20px; color: #000;">
+                            Community Club House (3-Story)
+                        </h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                            <div style="padding: 16px; background: #fff; border: 1px solid var(--border-light);">
+                                <h5 style="font-weight: 700; color: var(--gold); margin-bottom: 4px;">관리·보안센터</h5>
+                                <p style="font-size: 0.85rem; color: var(--text-gray);">24시간 게이티드 보안 관제</p>
+                            </div>
+                            <div style="padding: 16px; background: #fff; border: 1px solid var(--border-light);">
+                                <h5 style="font-weight: 700; color: var(--gold); margin-bottom: 4px;">Member's Lounge</h5>
+                                <p style="font-size: 0.85rem; color: var(--text-gray);">입주민 전용 비즈니스 라운지</p>
+                            </div>
+                            <div style="padding: 16px; background: #fff; border: 1px solid var(--border-light);">
+                                <h5 style="font-weight: 700; color: var(--gold); margin-bottom: 4px;">공유주방 파티룸</h5>
+                                <p style="font-size: 0.85rem; color: var(--text-gray);">패밀리 다이닝 & 연회 공간</p>
+                            </div>
+                            <div style="padding: 16px; background: #fff; border: 1px solid var(--border-light);">
+                                <h5 style="font-weight: 700; color: var(--gold); margin-bottom: 4px;">스카이 캠핑장</h5>
+                                <p style="font-size: 0.85rem; color: var(--text-gray);">루프탑 글램핑 & 힐링 공간</p>
+                            </div>
+                            <div style="padding: 16px; background: #fff; border: 1px solid var(--border-light);">
+                                <h5 style="font-weight: 700; color: var(--gold); margin-bottom: 4px;">게스트하우스</h5>
+                                <p style="font-size: 0.85rem; color: var(--text-gray);">귀빈을 위한 호텔급 스위트</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── SUBPAGE 6: GALLERY ── -->
+        <div id="view-gallery" class="subpage-view">
+            <div class="gallery-page-wrapper">
+                <div class="overview-inner">
+                    <div style="margin-bottom: 50px;">
+                        <span style="color: var(--gold-bright); font-family: var(--font-poppins); font-size: 0.9rem; letter-spacing: 0.15em; font-weight: 600;">GALLERY</span>
+                        <h2 class="brand-heading-large" style="color: #ffffff;">하이엔드 건축 미학</h2>
+                    </div>
+
+                    <div class="gallery-grid-box">
+                        <div class="gallery-card">
+                            <img src="images/concept-house4.jpg" alt="프리미엄 모델하우스 전경" onerror="this.src='public/images/concept-house4.jpg'">
+                            <div class="gallery-card-caption">
+                                <h4>프리미엄 단독주택 모델 · 전경</h4>
+                            </div>
+                        </div>
+                        <div class="gallery-card">
+                            <img src="images/concept-house3.jpg" alt="프리미엄 모델하우스 측면" onerror="this.src='public/images/concept-house3.jpg'">
+                            <div class="gallery-card-caption">
+                                <h4>프리미엄 단독주택 모델 · 측면</h4>
+                            </div>
+                        </div>
+                        <div class="gallery-card">
+                            <img src="images/clubhouse1.png" alt="클럽하우스 전면" onerror="this.src='public/images/clubhouse1.png'">
+                            <div class="gallery-card-caption">
+                                <h4>Community Club House · 전면</h4>
+                            </div>
+                        </div>
+                        <div class="gallery-card">
+                            <img src="images/clubhouse2.jpg" alt="클럽하우스 봄전경" onerror="this.src='public/images/clubhouse2.jpg'">
+                            <div class="gallery-card-caption">
+                                <h4>Community Club House · 봄 전경</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── SUBPAGE 7: REGISTER YOUR INTEREST ── -->
+        <div id="view-register" class="subpage-view">
+            <div class="register-page-wrapper">
+                <div class="overview-inner">
+                    <div style="margin-bottom: 50px;">
+                        <span style="color: var(--gold); font-family: var(--font-poppins); font-size: 0.9rem; letter-spacing: 0.15em; font-weight: 600;">REGISTER YOUR INTEREST</span>
+                        <h2 class="brand-heading-large">VIP 사전 상담 예약</h2>
+                    </div>
+
+                    <div class="register-grid-box">
+                        <div class="register-info-box">
+                            <div class="contact-card-item">
+                                <h4 style="font-size: 1.1rem; color: #000; margin-bottom: 12px;">분양 및 방문 상담 핫라인</h4>
+                                <a href="tel:01089408280" class="contact-phone-big">010 · 8940 · 8280</a>
+                                <p style="font-size: 0.95rem; color: var(--text-gray); line-height: 1.6;">
+                                    • 대표번호: 042-822-8280<br>
+                                    • 홍보관 위치: 대전광역시 유성구 상대서로 15 ㈜메디파크 홍보관 1층<br>
+                                    • 운영시간: 매일 10:30 – 17:30 (연중무휴)
+                                </p>
+                            </div>
+                            <div class="contact-card-item">
+                                <h4 style="font-size: 1.1rem; color: #000; margin-bottom: 10px;">VIP 사전 예약 특전</h4>
+                                <p style="font-size: 0.95rem; color: var(--text-gray); line-height: 1.7;">
+                                    ✓ 사업구역 지정 후 우선 필지 지정 선택권 부여<br>
+                                    ✓ 1:1 전문 전담 마스터 상담사 배정<br>
+                                    ✓ 하이엔드 건축 설계 맞춤 컨설팅 무상 지원
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Form -->
+                        <div class="register-form-wrap">
+                            <form onsubmit="handleVipSubmit(event)">
+                                <div class="form-field-group">
+                                    <label>성명</label>
+                                    <input type="text" id="regName" class="form-input" placeholder="성함을 입력해주세요" required>
+                                </div>
+                                <div class="form-field-group">
+                                    <label>연락처</label>
+                                    <input type="tel" id="regPhone" class="form-input" placeholder="010-0000-0000" required>
+                                </div>
+                                <div class="form-field-group">
+                                    <label>희망 필지</label>
+                                    <select id="regType" class="form-input">
+                                        <option value="block">블럭형 단독주택 (31필지)</option>
+                                        <option value="plot">획지형 단독주택 (3필지)</option>
+                                        <option value="all">전체 상담 희망</option>
+                                    </select>
+                                </div>
+                                <div class="form-field-group">
+                                    <label>문의 및 요청사항</label>
+                                    <textarea id="regMsg" class="form-input" rows="3" placeholder="궁금하신 사항을 입력해주세요"></textarea>
+                                </div>
+                                <div style="display: flex; align-items: flex-start; gap: 10px; font-size: 0.8rem; color: #666; margin-bottom: 20px;">
+                                    <input type="checkbox" id="regAgree" required style="margin-top: 3px;">
+                                    <label for="regAgree">개인정보 수집 및 분양 상담 목적의 활용에 동의합니다.</label>
+                                </div>
+                                <button type="submit" class="btn-register-submit">VIP 상담 신청하기</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <div id="instructions">
-        • 하단 <span class="highlight-text">필지 번호 버튼(1~31번)</span> 또는 <span class="highlight-text">3D 땅 필지</span>를 클릭하여 토지를 올리고 내리세요.
-    </div>
+    <!-- ═══════════════════════════════════════════ FOOTER ═══ -->
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div>
+                <span style="font-family: var(--font-poppins); font-size: 1.2rem; color: #fff; letter-spacing: 0.1em; display: block; margin-bottom: 12px;">THE CITADEL</span>
+                <p class="footer-info-text">
+                    대전광역시 유성구 상대동 314-1 일원 (상대서로 15 일원)<br>
+                    시행: 주식회사 메디파크 | 자금관리: 대한토지신탁 주식회사 | 분양관리: 주식회사 성지도시개발
+                </p>
+            </div>
+            <div>
+                <p class="footer-info-text">
+                    분양 문의 : 010-8940-8280 / 042-822-8280<br>
+                    홍보관 : 대전광역시 유성구 상대서로 15 ㈜메디파크 홍보관 1층
+                </p>
+            </div>
+            <div class="footer-copyright">
+                ⓒ 2026 THE CITADEL · Medipark Co., Ltd. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
 
+    <!-- ══════════════════════════════════════════════════════════
+         THREE.JS & 3D INTERACTIVE SUITE LOGIC (Flawless Engine)
+    ══════════════════════════════════════════════════════════ -->
     <script type="module">
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -482,149 +1852,100 @@
         // Data from Python
         const polygons = {{POLYGONS}};
         const cadastralData = {{CADASTRAL_DATA}};
-        let sequence = cadastralData.sequence || [];
-        let areas = cadastralData.areas || {};
-        
+        const sequence = cadastralData.sequence || [];
+        const areas = cadastralData.areas || {};
+        const droneSpots = {{DRONE_SPOTS}};
+
         const imgWidth = {{IMG_WIDTH}};
         const imgHeight = {{IMG_HEIGHT}};
         const defaultExtrudeHeight = 0.1;
-        
-        // Scene setup
+
         const container = document.getElementById('canvas-container');
-        const scene = new THREE.Scene();
-
-        // Camera
-        const aspect = window.innerWidth / window.innerHeight;
-        const camera = new THREE.PerspectiveCamera(60, aspect, 1, 10000);
-        camera.position.set(0, -imgHeight * 0.8, imgHeight * 0.8);
-
-        // Renderer
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        container.appendChild(renderer.domElement);
-
-        // CSS2D Renderer for labels
-        const labelRenderer = new CSS2DRenderer();
-        labelRenderer.setSize(window.innerWidth, window.innerHeight);
-        labelRenderer.domElement.style.position = 'absolute';
-        labelRenderer.domElement.style.top = '0px';
-        labelRenderer.domElement.style.left = '0px';
-        labelRenderer.domElement.style.pointerEvents = 'none';
-        labelRenderer.domElement.style.zIndex = '10';
-        container.appendChild(labelRenderer.domElement);
-
-        // Controls
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.05;
-        controls.target.set(0, 0, 0);
-
-        // Lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
-        scene.add(ambientLight);
-        
-        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        dirLight.position.set(imgWidth, imgHeight, 1000);
-        scene.add(dirLight);
-
-        // Texture loader
-        const textureLoader = new THREE.TextureLoader();
-        
-        const meshes = []; 
-        let baseTexture = null;
-        const lineMaterials = [];
-
-        let hoveredMesh = null;
-        let isDragging = false;
-        let draggedMesh = null;
+        let scene, camera, renderer, labelRenderer, controls;
+        let meshes = [];
+        let lineMaterials = [];
         let groundPlane = null;
-        let startY = 0;
-        let startHeight = 0;
-        let isRightClick = false;
-        let pointerDownPos = { x: 0, y: 0 };
-        let pointerDownTime = 0;
+        let skySphere = null;
+        let baseTexture = null;
+        let isVrMode = false;
+        let isRotating = false;
+        let isAnimatingCam = false;
+        let targetCamPos = new THREE.Vector3();
+        let targetControlPos = new THREE.Vector3();
 
-        // Load Base Image for ground plane
-        textureLoader.load("{{BASE_IMAGE_B64}}", function(texture) {
-            texture.colorSpace = THREE.SRGBColorSpace;
-            baseTexture = texture; 
-            const planeGeometry = new THREE.PlaneGeometry(imgWidth, imgHeight);
-            const planeMaterial = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
-            groundPlane = new THREE.Mesh(planeGeometry, planeMaterial);
-            groundPlane.position.set(0, 0, -2);
-            scene.add(groundPlane);
-            loadSideTextureAndBuild();
-        });
+        const parcelBtnMap = {};
 
-        function loadSideTextureAndBuild() {
-            textureLoader.load("{{SIDE_TEXTURE_B64}}", function(texture) {
+        function initThree() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x06070a);
+
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 10000);
+            camera.position.set(0, -imgHeight * 0.8, imgHeight * 0.8);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            labelRenderer = new CSS2DRenderer();
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.domElement.style.position = 'absolute';
+            labelRenderer.domElement.style.top = '0';
+            labelRenderer.domElement.style.left = '0';
+            labelRenderer.domElement.style.pointerEvents = 'none';
+            labelRenderer.domElement.style.zIndex = '10';
+            container.appendChild(labelRenderer.domElement);
+
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.target.set(0, 0, 0);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(imgWidth, imgHeight, 1000);
+            scene.add(dirLight);
+
+            const textureLoader = new THREE.TextureLoader();
+
+            // Load Base Ground Texture with MeshBasicMaterial for vivid, 100% color accuracy
+            textureLoader.load("{{BASE_IMAGE_B64}}", (texture) => {
                 texture.colorSpace = THREE.SRGBColorSpace;
-                texture.wrapS = THREE.RepeatWrapping;
-                texture.wrapT = THREE.RepeatWrapping;
-                texture.repeat.set(0.01, 0.02);
-                
-                polygons.forEach((poly, index) => {
-                    if (poly.length === 0) return;
-                    const shape = new THREE.Shape();
-                    let firstX = poly[0][0] - imgWidth / 2;
-                    let firstY = -poly[0][1] + imgHeight / 2;
-                    shape.moveTo(firstX, firstY);
-                    const positions = [];
-                    positions.push(firstX, firstY, 0);
-                    for(let i=1; i<poly.length; i++) {
-                        let px = poly[i][0] - imgWidth / 2;
-                        let py = -poly[i][1] + imgHeight / 2;
-                        shape.lineTo(px, py);
-                        positions.push(px, py, 0);
-                    }
-                    positions.push(firstX, firstY, 0);
-                    
-                    const extrudeSettings = { steps: 1, depth: defaultExtrudeHeight, bevelEnabled: false };
-                    const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-                    applyTopFaceUVs(geometry);
-                    
-                    const topMat = new THREE.MeshLambertMaterial({ map: baseTexture, color: 0xffffff });
-                    const sideMat = new THREE.MeshLambertMaterial({ map: texture, color: 0xdddddd });
-                    const mesh = new THREE.Mesh(geometry, [topMat, sideMat]);
-                    
-                    const seqIndex = sequence.indexOf(index);
-                    let labelObj = null;
-                    if (seqIndex !== -1) {
-                        const div = document.createElement('div');
-                        div.className = 'building-label';
-                        div.innerHTML = `<div class="seq">No. ${seqIndex + 1}</div><div class="area">${(areas[index.toString()] || '').replace(/\\n/g, '<br>')}</div>`;
-                        labelObj = new CSS2DObject(div);
-                        let cx = 0, cy = 0;
-                        for(let k=0; k<poly.length; k++) { cx += poly[k][0] - imgWidth / 2; cy += -poly[k][1] + imgHeight / 2; }
-                        labelObj.position.set(cx/poly.length, cy/poly.length, defaultExtrudeHeight + 10);
-                        mesh.add(labelObj);
-                    }
-                    
-                    const lineGeo = new LineGeometry();
-                    lineGeo.setPositions(positions);
-                    const lineMat = new LineMaterial({ color: 0xffffff, linewidth: 8, resolution: new THREE.Vector2(window.innerWidth, window.innerHeight) });
-                    lineMaterials.push(lineMat);
-                    const outline = new Line2(lineGeo, lineMat);
-                    outline.position.z = defaultExtrudeHeight + 0.1;
-                    mesh.add(outline);
+                baseTexture = texture;
 
-                    mesh.userData = { 
-                        index, 
-                        seqNo: seqIndex !== -1 ? (seqIndex + 1) : null,
-                        shape, 
-                        height: defaultExtrudeHeight, 
-                        targetHeight: defaultExtrudeHeight,
-                        outline, 
-                        topMaterial: topMat, 
-                        label: labelObj 
-                    };
-                    scene.add(mesh);
-                    meshes.push(mesh);
+                const planeGeometry = new THREE.PlaneGeometry(imgWidth, imgHeight);
+                const planeMaterial = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+                groundPlane = new THREE.Mesh(planeGeometry, planeMaterial);
+                groundPlane.position.set(0, 0, -2);
+                scene.add(groundPlane);
+
+                // Load Side Texture
+                textureLoader.load("{{SIDE_TEXTURE_B64}}", (sTex) => {
+                    sTex.colorSpace = THREE.SRGBColorSpace;
+                    sTex.wrapS = THREE.RepeatWrapping;
+                    sTex.wrapT = THREE.RepeatWrapping;
+                    sTex.repeat.set(0.01, 0.02);
+
+                    buildPolygons(sTex);
                 });
-
-                buildParcelButtons();
             });
+
+            // Sky Sphere (360 Drone VR)
+            const sphereGeo = new THREE.SphereGeometry(3000, 60, 40);
+            sphereGeo.scale(-1, 1, 1);
+            const skyMat = new THREE.MeshBasicMaterial({ color: 0x111122 });
+            skySphere = new THREE.Mesh(sphereGeo, skyMat);
+            skySphere.position.set(0, 0, 0);
+            skySphere.visible = false;
+            scene.add(skySphere);
+
+            buildVrSpots();
+            buildParcelBar();
+
+            window.addEventListener('resize', onWindowResize);
+            animate();
         }
 
         function applyTopFaceUVs(geometry) {
@@ -639,9 +1960,74 @@
             }
         }
 
+        function buildPolygons(sideTex) {
+            polygons.forEach((poly, index) => {
+                if (poly.length === 0) return;
+                const shape = new THREE.Shape();
+                let firstX = poly[0][0] - imgWidth / 2;
+                let firstY = -poly[0][1] + imgHeight / 2;
+                shape.moveTo(firstX, firstY);
+                const positions = [];
+                positions.push(firstX, firstY, 0);
+
+                for (let i = 1; i < poly.length; i++) {
+                    let px = poly[i][0] - imgWidth / 2;
+                    let py = -poly[i][1] + imgHeight / 2;
+                    shape.lineTo(px, py);
+                    positions.push(px, py, 0);
+                }
+                positions.push(firstX, firstY, 0);
+
+                const extrudeSettings = { steps: 1, depth: defaultExtrudeHeight, bevelEnabled: false };
+                const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+                applyTopFaceUVs(geometry);
+
+                const topMat = new THREE.MeshLambertMaterial({ map: baseTexture, color: 0xffffff });
+                const sideMat = new THREE.MeshLambertMaterial({ map: sideTex, color: 0xdddddd });
+
+                const mesh = new THREE.Mesh(geometry, [topMat, sideMat]);
+
+                const seqIndex = sequence.indexOf(index);
+                let labelObj = null;
+                if (seqIndex !== -1) {
+                    const div = document.createElement('div');
+                    div.className = 'building-label';
+                    div.innerHTML = `<div class="seq">No. ${seqIndex + 1}</div><div>${(areas[index.toString()] || '').replace(/\n/g, '<br>')}</div>`;
+                    labelObj = new CSS2DObject(div);
+                    let cx = 0, cy = 0;
+                    for (let k = 0; k < poly.length; k++) {
+                        cx += poly[k][0] - imgWidth / 2;
+                        cy += -poly[k][1] + imgHeight / 2;
+                    }
+                    labelObj.position.set(cx / poly.length, cy / poly.length, defaultExtrudeHeight + 10);
+                    mesh.add(labelObj);
+                }
+
+                const lineGeo = new LineGeometry();
+                lineGeo.setPositions(positions);
+                const lineMat = new LineMaterial({ color: 0xffffff, linewidth: 8, resolution: new THREE.Vector2(window.innerWidth, window.innerHeight) });
+                lineMaterials.push(lineMat);
+                const outline = new Line2(lineGeo, lineMat);
+                outline.position.z = defaultExtrudeHeight + 0.1;
+                mesh.add(outline);
+
+                mesh.userData = {
+                    index,
+                    seqNo: seqIndex !== -1 ? (seqIndex + 1) : null,
+                    shape,
+                    height: defaultExtrudeHeight,
+                    targetHeight: defaultExtrudeHeight,
+                    outline,
+                    topMaterial: topMat,
+                    label: labelObj
+                };
+                scene.add(mesh);
+                meshes.push(mesh);
+            });
+        }
+
         function updateMeshHeight(mesh, newHeight) {
-            const MAX_HEIGHT = 200;
-            newHeight = Math.max(0.1, Math.min(MAX_HEIGHT, newHeight)); 
+            newHeight = Math.max(0.1, Math.min(200, newHeight));
             mesh.userData.height = newHeight;
             const newGeometry = new THREE.ExtrudeGeometry(mesh.userData.shape, { steps: 1, depth: newHeight, bevelEnabled: false });
             applyTopFaceUVs(newGeometry);
@@ -651,42 +2037,22 @@
             if (mesh.userData.label) mesh.userData.label.position.z = newHeight + 10;
         }
 
-        const parcelBar = document.getElementById('parcel-bar');
-        const parcelBtnMap = {};
+        function buildParcelBar() {
+            const bar = document.getElementById('parcel-bar');
+            if (!bar) return;
+            bar.innerHTML = '';
 
-        function buildParcelButtons() {
-            if (!parcelBar) return;
-            parcelBar.innerHTML = '';
             for (let i = 1; i <= 31; i++) {
-                const btn = document.createElement('button');
-                btn.className = 'parcel-btn';
-                btn.innerText = i + '번';
-                btn.dataset.seq = i;
-                btn.addEventListener('click', () => toggleParcel(i));
-                parcelBar.appendChild(btn);
-                parcelBtnMap[i] = btn;
+                const pill = document.createElement('div');
+                pill.className = 'parcel-pill';
+                pill.textContent = i;
+                pill.dataset.seq = i;
+                pill.onclick = () => toggleParcel(i);
+                bar.appendChild(pill);
+                parcelBtnMap[i] = pill;
             }
-        }
 
-        function toggleParcel(seqNo) {
-            const mesh = meshes.find(m => m.userData && m.userData.seqNo === seqNo);
-            const btn = parcelBtnMap[seqNo];
-            if (!mesh) return;
-
-            if (mesh.userData.targetHeight > 1.0) {
-                // Turn OFF -> Flatten
-                mesh.userData.targetHeight = defaultExtrudeHeight;
-                if (btn) btn.classList.remove('active');
-            } else {
-                // Turn ON -> Elevate
-                mesh.userData.targetHeight = 60;
-                if (btn) btn.classList.add('active');
-            }
-        }
-
-        const btnParcelAll = document.getElementById('btn-parcel-all');
-        if (btnParcelAll) {
-            btnParcelAll.addEventListener('click', () => {
+            document.getElementById('btn-parcel-all')?.addEventListener('click', () => {
                 meshes.forEach(m => {
                     if (m.userData && m.userData.seqNo) {
                         m.userData.targetHeight = 60;
@@ -694,11 +2060,8 @@
                     }
                 });
             });
-        }
 
-        const btnParcelReset = document.getElementById('btn-parcel-reset');
-        if (btnParcelReset) {
-            btnParcelReset.addEventListener('click', () => {
+            document.getElementById('btn-parcel-reset')?.addEventListener('click', () => {
                 meshes.forEach(m => {
                     if (m.userData && m.userData.seqNo) {
                         m.userData.targetHeight = defaultExtrudeHeight;
@@ -708,189 +2071,59 @@
             });
         }
 
-        const btnParcelToggle = document.getElementById('btn-parcel-toggle');
-        const parcelContainer = document.getElementById('parcel-bar-container');
-        const parcelToggleIcon = document.getElementById('parcel-toggle-icon');
+        function toggleParcel(seqNo) {
+            const mesh = meshes.find(m => m.userData && m.userData.seqNo === seqNo);
+            const btn = parcelBtnMap[seqNo];
+            if (!mesh) return;
 
-        if (btnParcelToggle && parcelContainer) {
-            btnParcelToggle.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (parcelContainer.classList.contains('collapsed')) {
-                    parcelContainer.classList.remove('collapsed');
-                    if (parcelToggleIcon) parcelToggleIcon.innerText = '▼ 목록 접기';
-                } else {
-                    parcelContainer.classList.add('collapsed');
-                    if (parcelToggleIcon) parcelToggleIcon.innerText = '▲ 목록 펼치기';
-                }
-            });
+            if (mesh.userData.targetHeight > 1.0) {
+                mesh.userData.targetHeight = defaultExtrudeHeight;
+                if (btn) btn.classList.remove('active');
+            } else {
+                mesh.userData.targetHeight = 60;
+                if (btn) btn.classList.add('active');
+            }
         }
 
-        const raycaster = new THREE.Raycaster();
-        const mouse = new THREE.Vector2();
+        function buildVrSpots() {
+            const bar = document.getElementById('vr-spot-bar');
+            if (!bar || !droneSpots || droneSpots.length === 0) return;
+            bar.innerHTML = '';
 
-        window.addEventListener('pointerdown', (event) => {
-            isAnimatingCam = false;
-            if (isVrMode) {
-                controls.enabled = true;
-                return;
-            }
-            if (event.button === 2) { isRightClick = true; return; }
-            isRightClick = false;
-            pointerDownPos.x = event.clientX;
-            pointerDownPos.y = event.clientY;
-            pointerDownTime = Date.now();
-        });
-
-        window.addEventListener('pointermove', (event) => {
-            if (isVrMode) return;
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-            raycaster.setFromCamera(mouse, camera);
-            const visibleMeshes = meshes.filter(m => m.visible);
-            const intersects = raycaster.intersectObjects(visibleMeshes, false);
-            if (intersects.length > 0) {
-                if (hoveredMesh !== intersects[0].object) {
-                    if (hoveredMesh) hoveredMesh.userData.topMaterial.emissive.setHex(0x000000);
-                    hoveredMesh = intersects[0].object;
-                    hoveredMesh.userData.topMaterial.emissive.setHex(0x444444);
-                    document.body.style.cursor = 'pointer';
-                }
-            } else if (hoveredMesh) {
-                hoveredMesh.userData.topMaterial.emissive.setHex(0x000000);
-                hoveredMesh = null;
-                document.body.style.cursor = 'default';
-            }
-        });
-
-        window.addEventListener('pointerup', (event) => {
-            if (isVrMode || isRightClick) {
-                document.body.style.cursor = 'default';
-                return;
-            }
-            const clickDist = Math.hypot(event.clientX - pointerDownPos.x, event.clientY - pointerDownPos.y);
-            if (clickDist < 12) {
-                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-                raycaster.setFromCamera(mouse, camera);
-                const visibleMeshes = meshes.filter(m => m.visible);
-                const intersects = raycaster.intersectObjects(visibleMeshes, true);
-                if (intersects.length > 0) {
-                    let targetM = intersects[0].object;
-                    while (targetM && targetM.parent && targetM.userData?.index === undefined) {
-                        targetM = targetM.parent;
-                    }
-                    if (targetM && targetM.userData && targetM.userData.seqNo) {
-                        toggleParcel(targetM.userData.seqNo);
-                    }
-                }
-            }
-
-            document.body.style.cursor = hoveredMesh ? 'pointer' : 'default';
-        });
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            labelRenderer.setSize(window.innerWidth, window.innerHeight);
-            // Update line resolutions
-            lineMaterials.forEach(mat => {
-                mat.resolution.set(window.innerWidth, window.innerHeight);
-            });
-        });
-
-        const labelRaycaster = new THREE.Raycaster();
-        const labelWorldPos = new THREE.Vector3();
-        const rayDir = new THREE.Vector3();
-
-        function checkLabelVisibility() {
-            const cameraPos = camera.position;
-
-            meshes.forEach(mesh => {
-                const label = mesh.userData.label;
-                if (!label) return;
-
-                label.getWorldPosition(labelWorldPos);
-                rayDir.subVectors(labelWorldPos, cameraPos).normalize();
-                const distToLabel = cameraPos.distanceTo(labelWorldPos);
-
-                labelRaycaster.set(cameraPos, rayDir);
-                
-                const otherMeshes = meshes.filter(m => m !== mesh);
-                const intersects = labelRaycaster.intersectObjects(otherMeshes, false);
-
-                if (intersects.length > 0 && intersects[0].distance < distToLabel - 5) {
-                    label.element.style.opacity = '0';
-                    label.element.style.pointerEvents = 'none';
-                } else {
-                    label.element.style.opacity = '1';
-                }
+            droneSpots.forEach((spot, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `spot-btn ${idx === 0 ? 'active' : ''}`;
+                btn.innerHTML = `<i class="fas fa-camera"></i> ${spot.name || `항공 뷰 ${idx + 1}`}`;
+                btn.onclick = () => {
+                    document.querySelectorAll('.spot-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    playSpotMedia(spot);
+                };
+                bar.appendChild(btn);
             });
         }
-
-        let isAnimatingCam = false;
-        const targetCamPos = new THREE.Vector3();
-        const targetControlPos = new THREE.Vector3(0, 0, 0);
-
-        // 360 VR Drone Video Panorama (Official Three.js Standard Implementation)
-        const droneSpots = {{DRONE_SPOTS}};
-        let isVrMode = false;
-        let skySphere = null;
-        let currentVideoElem = null;
-        let currentVideoTexture = null;
-
-        const sphereGeo = new THREE.SphereGeometry(3000, 60, 40);
-        sphereGeo.scale(-1, 1, 1); // Invert geometry on X axis for interior panorama viewing
-        const skyMat = new THREE.MeshBasicMaterial({ color: 0x111122 });
-        skySphere = new THREE.Mesh(sphereGeo, skyMat);
-        skySphere.position.set(0, 0, 0);
-        skySphere.visible = false;
-        scene.add(skySphere);
-
-        let currentSpotType = 'video';
 
         function applySavedOrInitialView() {
+            controls.enabled = true;
             controls.minPolarAngle = 0.0001;
-            controls.maxPolarAngle = Math.PI - 0.0001; // 100% full 360 degree unrestricted polar angle
-            
-            let savedViewRaw = null;
-            try {
-                savedViewRaw = localStorage.getItem('saved_vr_viewpoint');
-            } catch(e) {}
-            if (!savedViewRaw) {
-                try {
-                    savedViewRaw = window.parent.localStorage.getItem('saved_vr_viewpoint');
-                } catch(e) {}
-            }
-
-            if (savedViewRaw) {
-                try {
-                    const savedView = JSON.parse(savedViewRaw);
-                    camera.position.set(0, 0, 0);
-                    if (savedView.dirX !== undefined) {
-                        controls.target.set(savedView.dirX * 1000, savedView.dirY * 1000, savedView.dirZ * 1000);
-                    } else if (savedView.tx !== undefined) {
-                        controls.target.set(savedView.tx, savedView.ty, savedView.tz);
-                    }
-                    if (savedView.fov) {
-                        camera.fov = savedView.fov;
-                        camera.updateProjectionMatrix();
-                    }
-                    controls.update();
-                    return;
-                } catch(e) {}
-            }
-            
+            controls.maxPolarAngle = Math.PI - 0.0001;
             camera.position.set(0, 0, 0);
             controls.target.set(0, -0.4, 1.0);
+            camera.fov = 60;
+            camera.updateProjectionMatrix();
             controls.update();
         }
 
+        let currentVideoElem = null;
+        let currentVideoTexture = null;
+
         function playSpotMedia(spot) {
             if (!spot) return;
-            const targetHost = window.location.hostname || "127.0.0.1";
             const mediaUrl = spot.b64 ? spot.b64 : spot.filename;
+
+            if (controls) {
+                applySavedOrInitialView();
+            }
 
             if (currentVideoElem) {
                 currentVideoElem.pause();
@@ -901,18 +2134,12 @@
                 currentVideoTexture.dispose();
                 currentVideoTexture = null;
             }
-            if (controls) {
-                applySavedOrInitialView();
-            }
 
-            // Immediately clear old texture so screen doesn't freeze on previous frame
             skySphere.material = new THREE.MeshBasicMaterial({ color: 0x111122 });
 
-            currentSpotType = spot.type || (spot.filename.toUpperCase().endsWith('.LRF') ? 'video' : 'image');
+            const isVideo = spot.type === 'video' || mediaUrl.toLowerCase().endsWith('.mp4') || mediaUrl.toLowerCase().endsWith('.lrf');
 
-            if (currentSpotType === 'video') {
-                skySphere.rotation.set(0, 0, 0);
-
+            if (isVideo) {
                 const video = document.createElement('video');
                 video.src = mediaUrl;
                 video.crossOrigin = 'anonymous';
@@ -924,241 +2151,155 @@
 
                 currentVideoTexture = new THREE.VideoTexture(video);
                 currentVideoTexture.colorSpace = THREE.SRGBColorSpace;
-                skySphere.material = new THREE.MeshBasicMaterial({ map: currentVideoTexture });
+                skySphere.material = new THREE.MeshBasicMaterial({ map: currentVideoTexture, side: THREE.DoubleSide });
             } else {
-                skySphere.rotation.set(0, 0, 0);
-
                 const loader = new THREE.TextureLoader();
                 loader.setCrossOrigin('anonymous');
                 loader.load(mediaUrl, function(texture) {
                     texture.colorSpace = THREE.SRGBColorSpace;
-                    skySphere.material = new THREE.MeshBasicMaterial({ map: texture });
+                    skySphere.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+                }, undefined, function(err) {
+                    console.error("Error loading VR texture from", mediaUrl, err);
                 });
             }
         }
 
-        // Build spot selector buttons and Save Viewpoint button
-        const spotBar = document.getElementById('vr-spot-bar');
-        if (droneSpots && droneSpots.length > 0) {
-            droneSpots.forEach((spot, idx) => {
-                const btn = document.createElement('button');
-                btn.className = 'cam-btn';
-                btn.innerText = spot.name;
-                if (idx === 0) btn.classList.add('active');
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('#vr-spot-bar .cam-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    playSpotMedia(spot);
-                });
-                spotBar.appendChild(btn);
-            });
-            
-            // Save Viewpoint Button
-            const saveBtn = document.createElement('button');
-            saveBtn.className = 'cam-btn';
-            saveBtn.style.background = 'linear-gradient(135deg, #10B981, #059669)';
-            saveBtn.style.color = '#ffffff';
-            saveBtn.style.fontWeight = 'bold';
-            saveBtn.innerText = '💾 현재 시점 저장';
-            saveBtn.addEventListener('click', () => {
-                const dir = new THREE.Vector3();
-                camera.getWorldDirection(dir);
-                const viewData = {
-                    dirX: dir.x,
-                    dirY: dir.y,
-                    dirZ: dir.z,
-                    fov: camera.fov
-                };
-                try {
-                    localStorage.setItem('saved_vr_viewpoint', JSON.stringify(viewData));
-                } catch(e) {}
-                try {
-                    window.parent.localStorage.setItem('saved_vr_viewpoint', JSON.stringify(viewData));
-                } catch(e) {}
-                alert("✅ 현재 바라보고 계신 시점이 360 VR 영구 기본 시점으로 저장되었습니다!\n새로고침(F5)을 하거나 탭을 이동해도 이 시점이 100% 고정됩니다.");
-            });
-            spotBar.appendChild(saveBtn);
-        }
-
-        function setCameraView(mode) {
-            isAnimatingCam = true;
+        // Camera Presets
+        document.getElementById('btn-overview')?.addEventListener('click', () => {
+            targetCamPos.set(0, -imgHeight * 0.8, imgHeight * 0.8);
             targetControlPos.set(0, 0, 0);
-
-            if (mode === 'overview') {
-                targetCamPos.set(0, -imgHeight * 0.8, imgHeight * 0.8);
-            } else if (mode === 'front') {
-                targetCamPos.set(0, -imgHeight * 0.95, imgHeight * 0.25);
-            } else if (mode === 'drone') {
-                targetCamPos.set(0, -0.01, imgHeight * 1.25);
-            }
-        }
-
-        document.getElementById('btn-overview').addEventListener('click', () => setCameraView('overview'));
-        document.getElementById('btn-front').addEventListener('click', () => setCameraView('front'));
-        document.getElementById('btn-drone').addEventListener('click', () => setCameraView('drone'));
-        document.getElementById('btn-rotate').addEventListener('click', () => {
-            controls.autoRotate = !controls.autoRotate;
+            isAnimatingCam = true;
+        });
+        document.getElementById('btn-front')?.addEventListener('click', () => {
+            targetCamPos.set(0, -imgHeight * 1.1, imgHeight * 0.3);
+            targetControlPos.set(0, 0, 0);
+            isAnimatingCam = true;
+        });
+        document.getElementById('btn-drone')?.addEventListener('click', () => {
+            targetCamPos.set(imgWidth * 0.7, -imgHeight * 0.7, imgHeight * 0.9);
+            targetControlPos.set(0, 0, 0);
+            isAnimatingCam = true;
+        });
+        document.getElementById('btn-rotate')?.addEventListener('click', () => {
+            isRotating = !isRotating;
+            controls.autoRotate = isRotating;
             controls.autoRotateSpeed = 2.0;
-            const btn = document.getElementById('btn-rotate');
-            if (controls.autoRotate) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
         });
 
-        const mapCameraState = {
-            pos: new THREE.Vector3(0, -imgHeight * 0.8, imgHeight * 0.8),
-            target: new THREE.Vector3(0, 0, 0),
-            fov: 60
-        };
-
-        // Main Tab Switching Logic
-        function switchTab(tab) {
+        // 3D Tab Switcher
+        window.switchSuiteTab = function(tab) {
             const tabVideo = document.getElementById('tab-video');
             const tabMap = document.getElementById('tab-map');
             const tabVr = document.getElementById('tab-vr');
             const tab3dgs = document.getElementById('tab-3dgs');
-            const camControls = document.getElementById('camera-controls');
-            const spotBar = document.getElementById('vr-spot-bar');
-            const instructions = document.getElementById('instructions');
+
+            const videoContainer = document.getElementById('citadel-video-container');
+            const ytIframe = document.getElementById('citadel-youtube-iframe');
             const canvasContainer = document.getElementById('canvas-container');
             const threeDgsIframe = document.getElementById('threeDgs-iframe');
-            const citadelVideoContainer = document.getElementById('citadel-video-container');
-            const citadelVid = document.getElementById('citadel-video-element');
+            const camControls = document.getElementById('camera-controls');
+            const vrSpotBar = document.getElementById('vr-spot-bar');
+            const parcelContainer = document.getElementById('parcel-bar-container');
 
-            // Reset all tabs
-            if (tabVideo) tabVideo.classList.remove('active');
-            tabMap.classList.remove('active');
-            tabVr.classList.remove('active');
-            tab3dgs.classList.remove('active');
+            [tabVideo, tabMap, tabVr, tab3dgs].forEach(t => t?.classList.remove('active'));
 
-            // Helper to pause citadel video when leaving video tab
-            if (tab !== 'video' && citadelVid) {
-                citadelVid.pause();
-            }
+            const ytSrc = "https://www.youtube.com/embed/LBsWlokWV_I?autoplay=1&mute=0&loop=1&playlist=LBsWlokWV_I&rel=0&modestbranding=1&enablejsapi=1";
 
             if (tab === 'video') {
                 isVrMode = false;
-                isAnimatingCam = false;
-
-                if (tabVideo) tabVideo.classList.add('active');
+                tabVideo?.classList.add('active');
+                videoContainer.style.display = 'flex';
                 canvasContainer.style.display = 'none';
                 threeDgsIframe.style.display = 'none';
-                if (citadelVideoContainer) citadelVideoContainer.style.display = 'flex';
                 camControls.style.display = 'none';
-                spotBar.style.display = 'none';
-                instructions.style.display = 'none';
-                if (labelRenderer && labelRenderer.domElement) labelRenderer.domElement.style.display = 'none';
-
-                const parcelContainer = document.getElementById('parcel-bar-container');
-                if (parcelContainer) parcelContainer.style.display = 'none';
-
-                if (currentVideoElem) currentVideoElem.pause();
-                if (citadelVid) citadelVid.play().catch(e => {});
+                vrSpotBar.style.display = 'none';
+                parcelContainer.style.display = 'none';
+                if (ytIframe && (!ytIframe.src || ytIframe.src === 'about:blank' || !ytIframe.src.includes('youtube.com'))) {
+                    ytIframe.src = ytSrc;
+                }
             } else if (tab === 'map') {
                 isVrMode = false;
-                isAnimatingCam = false;
-
-                tabMap.classList.add('active');
+                tabMap?.classList.add('active');
+                videoContainer.style.display = 'none';
                 canvasContainer.style.display = 'block';
                 threeDgsIframe.style.display = 'none';
-                if (citadelVideoContainer) citadelVideoContainer.style.display = 'none';
                 camControls.style.display = 'flex';
-                spotBar.style.display = 'none';
-                instructions.style.display = 'block';
+                vrSpotBar.style.display = 'none';
+                parcelContainer.style.display = 'flex';
                 labelRenderer.domElement.style.display = 'block';
+                
+                // Pause YouTube video
+                if (ytIframe && ytIframe.contentWindow) {
+                    ytIframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                }
 
-                const parcelContainer = document.getElementById('parcel-bar-container');
-                if (parcelContainer) parcelContainer.style.display = 'flex';
-
-                meshes.forEach(m => m.visible = true);
                 if (groundPlane) groundPlane.visible = true;
                 if (skySphere) skySphere.visible = false;
-                if (currentVideoElem) currentVideoElem.pause();
+                meshes.forEach(m => m.visible = true);
 
                 controls.enabled = true;
                 controls.enableZoom = true;
-                controls.minDistance = 10;
-                controls.maxDistance = 5000;
                 controls.rotateSpeed = 1.0;
                 controls.enableDamping = true;
-                controls.dampingFactor = 0.05;
                 controls.minPolarAngle = 0;
-                controls.maxPolarAngle = Math.PI - 0.01; // 100% full 360 degree unrestricted polar angle in 3D Map mode!
-
-                // Restore Map Camera cleanly to overview view
+                controls.maxPolarAngle = Math.PI - 0.01;
                 camera.fov = 60;
                 camera.position.set(0, -imgHeight * 0.8, imgHeight * 0.8);
                 controls.target.set(0, 0, 0);
                 camera.updateProjectionMatrix();
                 controls.update();
+                onWindowResize();
             } else if (tab === 'vr') {
-                // Save Map Camera State before entering VR mode
-                if (!isVrMode) {
-                    mapCameraState.pos.copy(camera.position);
-                    mapCameraState.target.copy(controls.target);
-                    mapCameraState.fov = camera.fov;
-                }
-
                 isVrMode = true;
-                isAnimatingCam = false;
-
-                tabVr.classList.add('active');
+                tabVr?.classList.add('active');
+                videoContainer.style.display = 'none';
                 canvasContainer.style.display = 'block';
                 threeDgsIframe.style.display = 'none';
-                if (citadelVideoContainer) citadelVideoContainer.style.display = 'none';
                 camControls.style.display = 'none';
-                spotBar.style.display = 'flex';
-                instructions.style.display = 'none';
+                vrSpotBar.style.display = 'flex';
+                parcelContainer.style.display = 'none';
                 labelRenderer.domElement.style.display = 'none';
+                
+                // Pause YouTube video
+                if (ytIframe && ytIframe.contentWindow) {
+                    ytIframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                }
 
-                const parcelContainer = document.getElementById('parcel-bar-container');
-                if (parcelContainer) parcelContainer.style.display = 'none';
-
-                meshes.forEach(m => m.visible = false);
                 if (groundPlane) groundPlane.visible = false;
                 if (skySphere) skySphere.visible = true;
+                meshes.forEach(m => m.visible = false);
 
-                camera.position.set(0, 0, 0);
+                controls.enabled = true;
                 controls.enableZoom = false;
                 controls.rotateSpeed = -0.5;
                 controls.enableDamping = false;
-
-                // Restore VR Camera State & Viewpoint independently
                 applySavedOrInitialView();
 
-                if (droneSpots && droneSpots.length > 0 && !skySphere.material.map) {
+                if (droneSpots && droneSpots.length > 0) {
                     playSpotMedia(droneSpots[0]);
-                } else if (currentSpotType === 'video' && currentVideoElem) {
-                    currentVideoElem.play().catch(e => {});
                 }
+                onWindowResize();
             } else if (tab === '3dgs') {
                 isVrMode = false;
-                isAnimatingCam = false;
-
-                tab3dgs.classList.add('active');
+                tab3dgs?.classList.add('active');
+                videoContainer.style.display = 'none';
                 canvasContainer.style.display = 'none';
                 threeDgsIframe.style.display = 'block';
+                camControls.style.display = 'none';
+                vrSpotBar.style.display = 'none';
+                parcelContainer.style.display = 'none';
                 
-                // Lazy-load 3DGS iframe when visible to avoid WebGPU width 0 height 0 initialization error
+                // Pause YouTube video
+                if (ytIframe && ytIframe.contentWindow) {
+                    ytIframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                }
+
                 const targetSrc = threeDgsIframe.getAttribute('data-src') || 'model.html';
                 if (!threeDgsIframe.src || threeDgsIframe.src.endsWith('about:blank') || threeDgsIframe.getAttribute('src') === 'about:blank') {
                     threeDgsIframe.src = targetSrc;
                 }
-
-                if (citadelVideoContainer) citadelVideoContainer.style.display = 'none';
-                camControls.style.display = 'none';
-                spotBar.style.display = 'none';
-                instructions.style.display = 'none';
-                labelRenderer.domElement.style.display = 'none';
-
-                const parcelContainer = document.getElementById('parcel-bar-container');
-                if (parcelContainer) parcelContainer.style.display = 'none';
-
-                if (currentVideoElem) currentVideoElem.pause();
             }
-        }
+        };
 
         window.addEventListener('wheel', (event) => {
             if (isVrMode) {
@@ -1169,48 +2310,19 @@
             }
         }, { passive: false });
 
-        if (document.getElementById('tab-video')) document.getElementById('tab-video').addEventListener('click', () => switchTab('video'));
-        document.getElementById('tab-map').addEventListener('click', () => switchTab('map'));
-        document.getElementById('tab-vr').addEventListener('click', () => switchTab('vr'));
-        document.getElementById('tab-3dgs').addEventListener('click', () => switchTab('3dgs'));
-
-        // Continuous infinite looping & video playback
-        const citadelVidElem = document.getElementById('citadel-video-element');
-        const citadelVidContainer = document.getElementById('citadel-video-container');
-
-        if (citadelVidElem) {
-            // Force play on load
-            const startPlay = () => {
-                citadelVidElem.play().catch(() => {
-                    citadelVidElem.muted = true;
-                    citadelVidElem.play().catch(() => {});
-                });
-            };
-
-            // Guarantee infinite continuous loop
-            citadelVidElem.addEventListener('ended', () => {
-                citadelVidElem.currentTime = 0;
-                startPlay();
-            });
-
-            if (citadelVidContainer) {
-                citadelVidContainer.addEventListener('click', () => {
-                    if (citadelVidElem.paused) {
-                        startPlay();
-                    }
-                });
-            }
-
-            window.addEventListener('DOMContentLoaded', startPlay);
-            startPlay();
+        function onWindowResize() {
+            if (!camera || !renderer || !labelRenderer) return;
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+            labelRenderer.setSize(w, h);
+            lineMaterials.forEach(mat => mat.resolution.set(w, h));
         }
 
         function animate() {
             requestAnimationFrame(animate);
-
-            if (isVrMode && currentSpotType === 'video' && currentVideoElem && currentVideoElem.readyState >= 2 && currentVideoTexture) {
-                currentVideoTexture.needsUpdate = true;
-            }
 
             if (isAnimatingCam) {
                 camera.position.lerp(targetCamPos, 0.08);
@@ -1220,7 +2332,6 @@
                 }
             }
 
-            // Smooth lerping for parcel extrusion heights
             meshes.forEach(m => {
                 if (m.userData && m.userData.targetHeight !== undefined && Math.abs(m.userData.height - m.userData.targetHeight) > 0.05) {
                     const nextH = THREE.MathUtils.lerp(m.userData.height, m.userData.targetHeight, 0.15);
@@ -1228,13 +2339,90 @@
                 }
             });
 
-            controls.update();
-            checkLabelVisibility();
-            renderer.render(scene, camera);
-            labelRenderer.render(scene, camera);
+            if (controls) controls.update();
+            if (renderer && scene && camera) {
+                renderer.render(scene, camera);
+                if (labelRenderer) labelRenderer.render(scene, camera);
+            }
         }
-        
-        animate();
+
+        window.addEventListener('DOMContentLoaded', initThree);
+    </script>
+
+    <!-- ══════════════════════════════════════════════════════════
+         UI & NAVIGATION LOGIC (Bosque Namsan Routing)
+    ══════════════════════════════════════════════════════════ -->
+    <script>
+        // Subpage Navigation Router
+        window.navigateTo = function(viewId) {
+            document.querySelectorAll('.subpage-view').forEach(v => v.classList.remove('active'));
+            const targetView = document.getElementById('view-' + viewId) || document.getElementById('view-home');
+            targetView.classList.add('active');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (btn.dataset.target === viewId) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+
+            // Close overlay menu
+            document.getElementById('overlay-menu').classList.remove('open');
+            document.getElementById('menu-toggle').classList.remove('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // If navigating to 3D, trigger resize and video/canvas check
+            if (viewId === '3d') {
+                window.dispatchEvent(new Event('resize'));
+            }
+        };
+
+        // Menu Toggle
+        const menuToggle = document.getElementById('menu-toggle');
+        const overlayMenu = document.getElementById('overlay-menu');
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            overlayMenu.classList.toggle('open');
+        });
+
+        // Initialize Swiper on Overview
+        window.addEventListener('DOMContentLoaded', () => {
+            new Swiper('.overview-slide-container', {
+                slidesPerView: 1,
+                spaceBetween: 24,
+                loop: true,
+                breakpoints: {
+                    640: { slidesPerView: 2 },
+                    1024: { slidesPerView: 3 }
+                },
+                scrollbar: {
+                    el: '.swiper-scrollbar',
+                    draggable: true,
+                }
+            });
+
+            // Header Scroll Listener
+            window.addEventListener('scroll', () => {
+                const header = document.getElementById('header');
+                if (window.scrollY > 40) header.classList.add('scrolled');
+                else header.classList.remove('scrolled');
+            });
+
+            // Handle hash on load
+            const hash = window.location.hash.replace('#', '');
+            if (hash) {
+                navigateTo(hash);
+            }
+        });
+
+        // VIP Consultation Submit
+        window.handleVipSubmit = function(e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value;
+            const phone = document.getElementById('regPhone').value;
+            const type = document.getElementById('regType').value;
+
+            alert(`[VIP 사전 예약 접수 완료]\n\n• 성명: ${name}님\n• 연락처: ${phone}\n• 희망 필지: ${type === 'block' ? '블럭형' : type === 'plot' ? '획지형' : '전체 상담'}\n\n신청이 정상적으로 접수되었습니다. 전담 상담사가 곧 연락드리겠습니다.`);
+            document.querySelector('.register-form-wrap form').reset();
+        };
     </script>
 </body>
 </html>
